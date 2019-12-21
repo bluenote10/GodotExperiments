@@ -1,0 +1,12 @@
+[package]
+name = "rnlib"
+version = "0.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# For now use vendored path
+gdnative = { path = "../godot-rust/gdnative" }
+
+# RUST_BACKTRACE=1 cargo watch -x run --clear -i "*.log"

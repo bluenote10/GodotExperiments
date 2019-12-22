@@ -27,7 +27,7 @@ func _process(delta):
     image.lock()
     for i in image.get_width():
         for j in image.get_height():
-            var value = 0.5 # rand_range(0.0, 1.0)
+            var value = rand_range(0.0, 1.0)
             image.set_pixel(i, j, Color(value, value, value, 1))
     image.unlock()
             

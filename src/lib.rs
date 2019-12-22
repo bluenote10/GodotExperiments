@@ -68,7 +68,7 @@ impl HelloWorld {
                         let mut rng = rand::thread_rng();
                         for i in 0 .. image.get_width() {
                             for j in 0 .. image.get_height() {
-                                let value = 0.5f32; // rng.gen_range(0.0f32, 1.0f32);
+                                let value = rng.gen_range(0.0f32, 1.0f32);
                                 image.set_pixel(i, j, godot::Color::rgba(value, value, value, 1f32));
                             }
                         }

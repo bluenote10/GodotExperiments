@@ -4,15 +4,7 @@ func _ready():
     $Node2DRust.queue_free()
     #$Node2DGodot.queue_free()
 
-    # To check actual precision of floats:
-    print("%.16f" % PI)
-    print("%.16f" % (1.0 / 3.0))
-    
-    # Results after going through `to_json`
-    print(to_json(PI))
-    print(to_json(1.0 / 3.0))
-
-    if true:
+    if false:
         var values = []
         var num_to_generate = 1000000
         

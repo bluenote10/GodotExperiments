@@ -1,11 +1,16 @@
 #[macro_use]
 extern crate gdnative as godot;
 extern crate rand;
+extern crate npy;
 
 use godot::GodotString;
 use godot::NodePath;
 use godot::Vector2;
 use rand::Rng;
+
+//use std::fs::File;
+use std::io::Read;
+use npy::NpyData;
 
 #[derive(godot::NativeClass)]
 #[inherit(godot::Node2D)]
@@ -22,6 +27,15 @@ impl HelloWorld {
     #[export]
     fn _ready(&self, mut owner: godot::Node2D) {
         godot_print!("hello, world.");
+        godot_print!("{:?}", std::env::current_dir().unwrap());
+
+        let mut buf = vec![];
+        std::fs::File::open("plain.npy").unwrap().read_to_end(&mut buf).unwrap();
+
+        let data: NpyData<f64> = NpyData::from_bytes(&buf).unwrap();
+        for number in data {
+            godot_print!("{}", number);
+        }
 
         let size = 512;
 

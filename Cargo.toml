@@ -8,5 +8,6 @@ crate-type = ["cdylib"]
 [dependencies]
 # For now use vendored path
 gdnative = { path = "../godot-rust/gdnative" }
+rand = "*"
 
-# RUST_BACKTRACE=1 cargo watch -x run --clear -i "*.log"
+# RUST_BACKTRACE=1 cargo watch -x build --clear

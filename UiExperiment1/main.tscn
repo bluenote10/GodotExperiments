@@ -1,0 +1,28 @@
+[gd_scene format=2]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+margin_left = 87.0
+margin_top = 64.0
+margin_right = 300.0
+margin_bottom = 227.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+margin_right = 213.0
+margin_bottom = 163.0
+
+[node name="A" type="Label" parent="MarginContainer/VBoxContainer"]
+margin_right = 213.0
+margin_bottom = 14.0
+text = "A"
+
+[node name="B" type="Label" parent="MarginContainer/VBoxContainer"]
+margin_top = 18.0
+margin_right = 213.0
+margin_bottom = 32.0
+text = "B"

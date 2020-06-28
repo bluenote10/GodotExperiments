@@ -1,0 +1,122 @@
+[gd_scene format=2]
+
+[node name="Node" type="Spatial"]
+
+[node name="Camera" type="Camera" parent="."]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Control" type="Control" parent="VBoxContainer"]
+margin_right = 1024.0
+margin_bottom = 550.0
+size_flags_vertical = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/Control/PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 543.0
+custom_constants/margin_right = 20
+custom_constants/margin_top = 20
+custom_constants/margin_left = 20
+custom_constants/margin_bottom = 20
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/Control/PanelContainer/MarginContainer"]
+margin_left = 20.0
+margin_top = 20.0
+margin_right = 990.0
+margin_bottom = 516.0
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/Control/PanelContainer/MarginContainer/ScrollContainer"]
+margin_right = 970.0
+margin_bottom = 134.0
+size_flags_horizontal = 3
+custom_constants/vseparation = 43
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/Control/PanelContainer/MarginContainer/ScrollContainer/GridContainer"]
+margin_top = 1.0
+margin_right = 76.0
+margin_bottom = 15.0
+text = "Label"
+
+[node name="HSlider" type="HSlider" parent="VBoxContainer/Control/PanelContainer/MarginContainer/ScrollContainer/GridContainer"]
+margin_left = 80.0
+margin_right = 970.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label2" type="Label" parent="VBoxContainer/Control/PanelContainer/MarginContainer/ScrollContainer/GridContainer"]
+margin_top = 60.0
+margin_right = 76.0
+margin_bottom = 74.0
+text = "Label Wider"
+
+[node name="HSlider2" type="HSlider" parent="VBoxContainer/Control/PanelContainer/MarginContainer/ScrollContainer/GridContainer"]
+margin_left = 80.0
+margin_top = 59.0
+margin_right = 970.0
+margin_bottom = 75.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label3" type="Label" parent="VBoxContainer/Control/PanelContainer/MarginContainer/ScrollContainer/GridContainer"]
+margin_top = 119.0
+margin_right = 76.0
+margin_bottom = 133.0
+text = "Label Wider"
+
+[node name="HSlider3" type="HSlider" parent="VBoxContainer/Control/PanelContainer/MarginContainer/ScrollContainer/GridContainer"]
+margin_left = 80.0
+margin_top = 118.0
+margin_right = 970.0
+margin_bottom = 134.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+margin_top = 554.0
+margin_right = 1024.0
+margin_bottom = 600.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 39.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="A" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+margin_right = 1010.0
+margin_bottom = 14.0
+text = "A"
+
+[node name="B" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer"]
+margin_top = 18.0
+margin_right = 1010.0
+margin_bottom = 32.0
+text = "B"

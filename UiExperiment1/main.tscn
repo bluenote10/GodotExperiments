@@ -7,10 +7,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-margin_left = -99.0
-margin_top = -90.0
-margin_right = 90.0
-margin_bottom = 92.0
+margin_left = -483.897
+margin_top = -271.951
+margin_right = -294.897
+margin_bottom = -89.9512
 custom_constants/margin_right = 20
 custom_constants/margin_top = 20
 custom_constants/margin_left = 20
@@ -23,7 +23,7 @@ __meta__ = {
 margin_left = 20.0
 margin_top = 20.0
 margin_right = 169.0
-margin_bottom = 162.0
+margin_bottom = 161.0
 
 [node name="A" type="Label" parent="MarginContainer/VBoxContainer"]
 margin_right = 149.0
@@ -35,3 +35,107 @@ margin_top = 18.0
 margin_right = 149.0
 margin_bottom = 32.0
 text = "B"
+
+[node name="UnmanagedLabel" type="Label" parent="."]
+margin_left = 620.49
+margin_top = 43.5085
+margin_right = 984.49
+margin_bottom = 251.508
+text = "Unmanaged Label"
+align = 2
+valign = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+margin_left = 105.0
+margin_top = 274.0
+margin_right = 633.0
+margin_bottom = 416.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer"]
+margin_right = 528.0
+margin_bottom = 65.0
+size_flags_horizontal = 3
+
+[node name="Label1" type="Label" parent="ScrollContainer/HBoxContainer"]
+margin_top = 25.0
+margin_right = 96.0
+margin_bottom = 39.0
+text = "V shrink center"
+
+[node name="Label2" type="Label" parent="ScrollContainer/HBoxContainer"]
+margin_left = 100.0
+margin_right = 329.0
+margin_bottom = 14.0
+size_flags_vertical = 0
+text = "V shrink top (no fill, no other shrink)"
+
+[node name="Label3" type="Label" parent="ScrollContainer/HBoxContainer"]
+margin_left = 333.0
+margin_top = 51.0
+margin_right = 412.0
+margin_bottom = 65.0
+size_flags_vertical = 8
+text = "V shrink end"
+
+[node name="Label4" type="Label" parent="ScrollContainer/HBoxContainer"]
+margin_left = 416.0
+margin_right = 444.0
+margin_bottom = 65.0
+size_flags_vertical = 1
+text = "V fill"
+
+[node name="Label5" type="Label" parent="ScrollContainer/HBoxContainer"]
+margin_left = 448.0
+margin_right = 456.0
+margin_bottom = 65.0
+text = "C
+C
+C
+C"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_left = 117.0
+margin_top = 428.0
+margin_right = 643.0
+margin_bottom = 564.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+margin_right = 100.0
+margin_bottom = 136.0
+rect_min_size = Vector2( 100, 0 )
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer"]
+margin_right = 100.0
+margin_bottom = 14.0
+text = "A"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer"]
+margin_left = 104.0
+margin_right = 113.0
+margin_bottom = 136.0
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer2"]
+margin_right = 9.0
+margin_bottom = 14.0
+text = "B"
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="HBoxContainer"]
+margin_left = 117.0
+margin_right = 125.0
+margin_bottom = 136.0
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer3"]
+margin_right = 8.0
+margin_bottom = 48.0
+text = "C
+C
+C"

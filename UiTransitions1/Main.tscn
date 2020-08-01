@@ -24,6 +24,35 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="VBox" type="VBoxContainer" parent="VBoxContainer/Control/PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 555.0
+
+[node name="Label1" type="Label" parent="VBoxContainer/Control/PanelContainer/VBox"]
+margin_right = 1010.0
+margin_bottom = 14.0
+text = "Label A"
+
+[node name="Label2" type="Label" parent="VBoxContainer/Control/PanelContainer/VBox"]
+margin_top = 18.0
+margin_right = 1010.0
+margin_bottom = 32.0
+text = "Label B"
+
+[node name="Label3" type="Label" parent="VBoxContainer/Control/PanelContainer/VBox"]
+margin_top = 36.0
+margin_right = 1010.0
+margin_bottom = 50.0
+text = "Label C"
+
+[node name="Button" type="Button" parent="VBoxContainer/Control/PanelContainer/VBox"]
+margin_top = 54.0
+margin_right = 1010.0
+margin_bottom = 74.0
+text = "ok"
+
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
 margin_top = 566.0
 margin_right = 1024.0

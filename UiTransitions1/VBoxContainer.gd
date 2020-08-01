@@ -6,6 +6,7 @@ onready var tween := $Tween as Tween
 
 var state_visible := true
 
+const ANIM_TIME = 0.3
 
 func _input(event):
     if event.is_action_pressed("toggle_menu"):
@@ -38,23 +39,30 @@ func _on_Button3_pressed():
 
 
 func hide_panel():
-    var w = panel.rect_size.x
+    # var w = panel.rect_size.x
     var pos_from = panel.rect_position.x
-    var pos_upto = w
+    var pos_upto = 30
     tween.interpolate_property(
         panel, "rect_position:x", 
         pos_from, pos_upto, 
-        0.3, Tween.TRANS_CUBIC, Tween.EASE_IN)
+        ANIM_TIME, Tween.TRANS_CUBIC, Tween.EASE_IN)
+    tween.interpolate_property(
+        panel, "modulate:a", 
+        panel.modulate.a, 0.0, 
+        ANIM_TIME, Tween.TRANS_CUBIC, Tween.EASE_IN)        
     tween.start()
 
 
 func show_panel():
-    var w = panel.rect_size.x
     var pos_from = panel.rect_position.x
     var pos_upto = 0
     tween.interpolate_property(
         panel, "rect_position:x", 
         pos_from, pos_upto, 
-        0.3, Tween.TRANS_CUBIC, Tween.EASE_OUT)
+        ANIM_TIME, Tween.TRANS_CUBIC, Tween.EASE_OUT)
+    tween.interpolate_property(
+        panel, "modulate:a", 
+        panel.modulate.a, 1.0, 
+        ANIM_TIME, Tween.TRANS_CUBIC, Tween.EASE_OUT)        
     tween.start()
     

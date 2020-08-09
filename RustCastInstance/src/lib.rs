@@ -42,7 +42,7 @@ impl WorldManager {
         //println!("{:?}", world_data.some_data);
         /*
         world_data.map(|world_data| {
-
+            Ok(())
         })
         */
     }

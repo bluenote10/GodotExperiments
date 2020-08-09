@@ -32,8 +32,9 @@ impl WorldManager {
     #[export]
     fn set_world_data(&self, _owner: &Object, world_data: Variant) {
         // Goal: access world_data.some_data
-        let world_data = world_data.try_to_object::<Object>().expect("failed to cast to object");
+        let world_data = unsafe { world_data.try_to_object::<Object>().expect("failed to cast to object").assume_safe() };
         let world_data = world_data.cast_instance::<WorldData>().expect("failed to cast to native script");
+        // println!("{:?}", world_data.some_data);
     }
 }
 

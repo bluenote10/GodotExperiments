@@ -34,7 +34,17 @@ impl WorldManager {
         // Goal: access world_data.some_data
         let world_data = unsafe { world_data.try_to_object::<Object>().expect("failed to cast to object").assume_safe() };
         let world_data = world_data.cast_instance::<WorldData>().expect("failed to cast to native script");
-        // println!("{:?}", world_data.some_data);
+        let world_data = world_data.script();
+
+        // Now how to access user data?
+
+        //let world_data: WorldData = *world_data;
+        //println!("{:?}", world_data.some_data);
+        /*
+        world_data.map(|world_data| {
+
+        })
+        */
     }
 }
 

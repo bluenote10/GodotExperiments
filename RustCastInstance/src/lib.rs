@@ -29,12 +29,36 @@ impl WorldManager {
         WorldManager
     }
 
+    /*
     #[export]
     fn set_world_data(&self, _owner: &Object, world_data: Variant) {
         // Goal: access world_data.some_data
         let world_data = unsafe { world_data.try_to_object::<Object>().expect("failed to cast to object").assume_safe() };
         let world_data = world_data.cast_instance::<WorldData>().expect("failed to cast to native script");
         let world_data = world_data.script();
+
+        let world_data = world_data.borrow();
+
+        // Now how to access user data?
+
+        //let world_data: WorldData = *world_data;
+        //println!("{:?}", world_data.some_data);
+        /*
+        world_data.map(|world_data| {
+            Ok(())
+        })
+        */
+    }
+    */
+
+    #[export]
+    fn set_world_data(&self, _owner: &Object, world_data: Variant) {
+        // Goal: access world_data.some_data
+        let world_data = unsafe { world_data.try_to_object::<Object>().expect("failed to cast to object").assume_safe() };
+        let world_data = world_data.cast_instance::<WorldData>().expect("failed to cast to native script");
+        let world_data = world_data.script();
+
+        let world_data = world_data.borrow();
 
         // Now how to access user data?
 

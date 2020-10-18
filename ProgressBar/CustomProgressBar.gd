@@ -5,7 +5,7 @@ export var texture_w_border := 6
 
 export var progress := 0.5 setget set_progress, get_progress
 
-signal progress_change_request(progress)
+signal progress_change_request(progress, is_final)
 
 onready var nine_patch_bg := $Background as NinePatchRect
 onready var nine_patch_fg := $Foreground as NinePatchRect
@@ -30,10 +30,10 @@ func _gui_input(event):
     # print(event.is_pressed())
     # print(Input.is_mouse_button_pressed(1))
     
-    var is_press = event is InputEventMouseButton and event.is_pressed()
+    var is_button = event is InputEventMouseButton
     var is_drag = event is InputEventMouseMotion and Input.is_mouse_button_pressed(1)
     
-    if is_press or is_drag:
+    if is_button or is_drag:
         var x = event.position.x
 
         var total_width = rect_size.x
@@ -47,8 +47,9 @@ func _gui_input(event):
             progress = 1.0
             
         resize_fg_to_current_value()
-        emit_signal("progress_change_request", progress)
-        # if event.is_pressed() needed?
+
+        var is_final = is_button and not event.is_pressed()
+        emit_signal("progress_change_request", progress, is_final)
     
     # Pros/cons of calling this?
     accept_event()

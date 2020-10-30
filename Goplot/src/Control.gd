@@ -1,6 +1,8 @@
 extends Spatial
 
 
+onready var mesh_instance = $MeshInstance # as MeshInstance
+
 func _ready():
     var http_request = HTTPRequest.new()
     add_child(http_request)
@@ -18,3 +20,5 @@ func _http_request_completed(result, response_code, headers, body):
     var response = parse_json(body.get_string_from_utf8())
     var data = response["data"]
     print(len(data))
+    
+    mesh_instance.create_mesh(data)

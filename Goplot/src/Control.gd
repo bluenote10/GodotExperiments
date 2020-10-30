@@ -1,10 +1,11 @@
-extends Control
+extends Spatial
 
 
 func _ready():
     var http_request = HTTPRequest.new()
     add_child(http_request)
     http_request.connect("request_completed", self, "_http_request_completed")
+    http_request.download_chunk_size = pow(2,16)
 
     print("Sending request")
     var error = http_request.request("http://localhost:8000")

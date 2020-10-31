@@ -16,8 +16,12 @@ func _ready():
 
 
 func _http_request_completed(result, response_code, headers, body):
-    print("Received response of size %.3f MB" % (float(len(body)) / 1024 / 1024))
+    print("Received response (code: %s) of size %.3f MB" % [
+        response_code,
+        float(len(body)) / 1024 / 1024,
+    ])
     var response = parse_json(body.get_string_from_utf8())
+    
     var data = response["data"]
     print(len(data))
     

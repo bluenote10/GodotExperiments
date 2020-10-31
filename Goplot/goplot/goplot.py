@@ -60,11 +60,17 @@ class Goplot(object):
 
 
 if __name__ == "__main__":
-    app = FastAPI()
+    if False:
+        app = FastAPI()
 
-    @app.get("/")
-    def root():
-        data = np.random.uniform(size=(100, 200))
-        return {"data": data.tolist()}
+        @app.get("/")
+        def root():
+            data = np.random.uniform(size=(100, 200))
+            return {"data": data.tolist()}
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+        uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    if True:
+        data = np.outer(np.arange(10), np.arange(10)) ** 2
+        goplot = Goplot("/home/fabian/bin/Godot_v3.2.2-stable_x11.64")
+        goplot.plot_surface(data)

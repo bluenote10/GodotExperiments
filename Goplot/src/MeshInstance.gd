@@ -4,11 +4,31 @@ extends MeshInstance
 const default_material = preload("res://resources/default_material.tres")
 
 
-func create_mesh(data):
-    var arr = []
-    arr.resize(Mesh.ARRAY_MAX)
+func get_normal(data, i, j, grid_step_i=1, grid_step_j=1):
+    var normal = Vector3.ZERO
 
-    # PoolVectorXXArrays for mesh construction.
+    var len_i = len(data)
+    var len_j = len(data[0])
+    
+    if i > 0:
+        var delta_y = data[i-1][j] - data[i][j]
+        normal += Vector3(-delta_y, grid_step_i, 0).normalized()
+    if i < len_i - 1:
+        var delta_y = data[i][j] - data[i+1][j]
+        normal += Vector3(-delta_y, grid_step_i, 0).normalized()
+        
+    if j > 0:
+        var delta_y = data[i][j-1] - data[i][j]
+        normal += Vector3(0, grid_step_j, -delta_y).normalized()
+    if j < len_j - 1:
+        var delta_y = data[i][j] - data[i][j+1]
+        normal += Vector3(0, grid_step_j, -delta_y).normalized()
+
+    return normal.normalized()        
+    
+
+func create_mesh(data):
+
     var verts = PoolVector3Array()
     var normals = PoolVector3Array()
     var indices = PoolIntArray()
@@ -21,7 +41,7 @@ func create_mesh(data):
     for i in num_rows:
         for j in num_cols:
             verts.append(Vector3(i, data[i][j], j))
-            normals.append(Vector3(rand_range(0, 1), rand_range(0, 1), rand_range(0, 1)).normalized())
+            normals.append(get_normal(data, i, j))
             
             if i > 0 and j > 0:
                 indices.append(index - num_cols - 1)
@@ -34,8 +54,8 @@ func create_mesh(data):
 
             index += 1
     
-    
-    # Assign arrays to mesh array.
+    var arr = []
+    arr.resize(Mesh.ARRAY_MAX)
     arr[Mesh.ARRAY_VERTEX] = verts
     arr[Mesh.ARRAY_NORMAL] = normals
     arr[Mesh.ARRAY_INDEX] = indices

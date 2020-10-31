@@ -26,7 +26,6 @@ def run_app(data, scale=10.0):
     data_min = data.min()
     data_max = data.max()
     data = (data - data_min) / (data_max - data_min)
-    data *= scale
 
     app = create_app(data)
     uvicorn.run(app, host="0.0.0.0", port=8000)
@@ -71,6 +70,6 @@ if __name__ == "__main__":
         uvicorn.run(app, host="0.0.0.0", port=8000)
 
     if True:
-        data = np.outer(np.arange(10), np.arange(10)) ** 2
+        data = np.outer(np.sin(np.arange(200) / 10), np.arange(10)) ** 2
         goplot = Goplot("/home/fabian/bin/Godot_v3.2.2-stable_x11.64")
-        goplot.plot_surface(data)
+        goplot.plot_surface(data, keep_backend_running=True)

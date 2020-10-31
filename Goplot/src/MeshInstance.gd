@@ -4,53 +4,60 @@ extends MeshInstance
 const default_material = preload("res://resources/default_material.tres")
 
 
-func get_normal(data, i, j, grid_step_i=1, grid_step_j=1):
+func get_normal(data, i, j, z_scale, grid_step_i=1, grid_step_j=1):
     var normal = Vector3.ZERO
 
     var len_i = len(data)
     var len_j = len(data[0])
     
     if i > 0:
-        var delta_y = data[i-1][j] - data[i][j]
+        var delta_y = z_scale * (data[i-1][j] - data[i][j])
         normal += Vector3(-delta_y, grid_step_i, 0).normalized()
     if i < len_i - 1:
-        var delta_y = data[i][j] - data[i+1][j]
+        var delta_y = z_scale * (data[i][j] - data[i+1][j])
         normal += Vector3(-delta_y, grid_step_i, 0).normalized()
         
     if j > 0:
-        var delta_y = data[i][j-1] - data[i][j]
+        var delta_y = z_scale * (data[i][j-1] - data[i][j])
         normal += Vector3(0, grid_step_j, -delta_y).normalized()
     if j < len_j - 1:
-        var delta_y = data[i][j] - data[i][j+1]
+        var delta_y = z_scale * (data[i][j] - data[i][j+1])
         normal += Vector3(0, grid_step_j, -delta_y).normalized()
 
     return normal.normalized()        
-    
 
-func create_mesh(data):
+
+func coord(idx, axis_len):
+    return float(idx) - float(axis_len) / 2
+
+
+func create_mesh(data, z_scale=3.0):
 
     var verts = PoolVector3Array()
     var normals = PoolVector3Array()
     var indices = PoolIntArray()
 
-    var num_rows = len(data)
-    var num_cols = len(data[0])
+    var len_i = len(data)
+    var len_j = len(data[0])
     
     var index = 0
     
-    for i in num_rows:
-        for j in num_cols:
-            verts.append(Vector3(i, data[i][j], j))
-            normals.append(get_normal(data, i, j))
+    for i in len_i:
+        for j in len_j:
+            var x = coord(i, len_i)
+            var z = coord(j, len_j)
+            var y = z_scale * data[i][j]
+            verts.append(Vector3(x, y, z))
+            normals.append(get_normal(data, i, j, z_scale))
             
             if i > 0 and j > 0:
-                indices.append(index - num_cols - 1)
+                indices.append(index - len_j - 1)
                 indices.append(index - 1)
                 indices.append(index)
 
-                indices.append(index - num_cols - 1)
+                indices.append(index - len_j - 1)
                 indices.append(index)
-                indices.append(index - num_cols)
+                indices.append(index - len_j)
 
             index += 1
     

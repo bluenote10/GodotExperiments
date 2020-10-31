@@ -5,3 +5,4 @@ export_presets.cfg
 
 .idea
 *.pyc
+*.egg-info/

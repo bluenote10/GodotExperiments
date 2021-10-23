@@ -1,0 +1,107 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://white_1x1.png" type="Texture" id=1]
+[ext_resource path="res://MeshInstance2D.gd" type="Script" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+void fragment() {
+    COLOR = vec4(1, 0, 0, 1);
+}
+"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+
+[sub_resource type="Shader" id=3]
+code = "shader_type canvas_item;
+
+void vertex() {
+    VERTEX += vec2(10, 0);
+}
+
+void fragment() {
+    COLOR = vec4(1, 0, 0, 1);
+}
+"
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = SubResource( 3 )
+
+[sub_resource type="Shader" id=5]
+code = "shader_type canvas_item;
+
+uniform float width = 3.0;
+
+uniform vec4 col: hint_color = vec4(0, 0, 0, 1);
+uniform vec4 col_outside: hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+uniform vec4 col_inside: hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+
+varying float inside;
+
+void vertex() {
+    inside = COLOR.a * 2.0 - 1.0;
+    VERTEX += UV * inside * width;
+    /*
+    if (length(UV) > 1.5) {
+        inside = 1.0;
+    } else {
+        inside = -1.0;
+    }
+    */
+}
+
+void fragment() {
+    COLOR = vec4(1, 0, 0, 1);
+    COLOR = vec4(inside, -inside, 0, 1);
+    if (inside > 0.0) {
+        COLOR = mix(col, col_inside, inside);
+    } else {
+        COLOR = mix(col, col_outside, -inside);
+    }
+}
+"
+
+[sub_resource type="ShaderMaterial" id=6]
+shader = SubResource( 5 )
+shader_param/width = 3.0
+shader_param/col = Color( 0, 0, 0, 1 )
+shader_param/col_outside = Color( 0, 0, 0, 1 )
+shader_param/col_inside = Color( 0, 0, 0, 1 )
+
+[sub_resource type="ArrayMesh" id=7]
+surfaces/0 = {
+"aabb": AABB( 0, 0, 0, 100, 200, 0 ),
+"array_data": PoolByteArray( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 192, 0, 0, 200, 66, 0, 0, 0, 0, 0, 0, 0, 192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 0, 0, 200, 66, 0, 0, 0, 0, 0, 0, 0, 192, 0, 0, 200, 66, 0, 0, 0, 0, 0, 0, 0, 60, 0, 0, 200, 66, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 200, 66, 0, 0, 200, 66, 0, 64, 0, 0, 0, 0, 200, 66, 0, 0, 0, 0, 0, 188, 0, 0, 0, 0, 200, 66, 0, 0, 0, 0, 0, 188, 0, 0, 0, 0, 200, 66, 0, 0, 200, 66, 0, 64, 0, 0, 0, 0, 200, 66, 0, 0, 200, 66, 0, 188, 0, 0, 0, 0, 200, 66, 0, 0, 200, 66, 168, 61, 168, 61, 0, 0, 0, 0, 0, 0, 72, 67, 168, 61, 168, 61, 0, 0, 200, 66, 0, 0, 200, 66, 168, 185, 168, 185, 0, 0, 200, 66, 0, 0, 200, 66, 168, 185, 168, 185, 0, 0, 0, 0, 0, 0, 72, 67, 168, 61, 168, 61, 0, 0, 0, 0, 0, 0, 72, 67, 168, 185, 168, 185, 0, 0, 0, 0, 0, 0, 72, 67, 0, 192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 192, 0, 0, 0, 0, 0, 0, 0, 0, 72, 67, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 72, 67, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 0, 0 ),
+"array_index_data": PoolByteArray(  ),
+"blend_shape_data": [  ],
+"format": 359441,
+"index_count": 0,
+"primitive": 4,
+"skeleton_aabb": [  ],
+"vertex_count": 24
+}
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Node2D" type="Node2D" parent="."]
+material = SubResource( 2 )
+position = Vector2( 547, 87 )
+
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 142, 114 )
+scale = Vector2( 100, 100 )
+texture = ExtResource( 1 )
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+material = SubResource( 4 )
+position = Vector2( 81.9045, 309.336 )
+scale = Vector2( 1.12537, 0.824336 )
+polygon = PoolVector2Array( -2, 3, 491, 59, 358, 112, 459, 145, 514, 71, 599, 166, 125, 167 )
+
+[node name="MeshInstance2D" type="MeshInstance2D" parent="."]
+material = SubResource( 6 )
+position = Vector2( 431.025, 158.449 )
+mesh = SubResource( 7 )
+script = ExtResource( 2 )

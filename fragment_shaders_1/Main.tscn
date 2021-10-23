@@ -1,0 +1,48 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://fragment.tres" type="Material" id=1]
+[ext_resource path="res://icon.png" type="Texture" id=2]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="icon5" type="Sprite" parent="."]
+material = ExtResource( 1 )
+position = Vector2( 518.636, 304.038 )
+scale = Vector2( 1.53125, 1.53125 )
+texture = ExtResource( 2 )
+
+[node name="icon4" type="Sprite" parent="."]
+material = ExtResource( 1 )
+position = Vector2( 981.954, 551.476 )
+scale = Vector2( 1.53125, 1.53125 )
+texture = ExtResource( 2 )
+
+[node name="icon6" type="Sprite" parent="."]
+material = ExtResource( 1 )
+position = Vector2( 5163.43, 3148.12 )
+scale = Vector2( 1.53125, 1.53125 )
+texture = ExtResource( 2 )
+
+[node name="icon7" type="Sprite" parent="."]
+material = ExtResource( 1 )
+position = Vector2( -2938.04, -1769.27 )
+scale = Vector2( 1.53125, 1.53125 )
+texture = ExtResource( 2 )
+
+[node name="icon3" type="Sprite" parent="."]
+material = ExtResource( 1 )
+position = Vector2( 42.2175, 558.565 )
+scale = Vector2( 1.53125, 1.53125 )
+texture = ExtResource( 2 )
+
+[node name="icon2" type="Sprite" parent="."]
+material = ExtResource( 1 )
+position = Vector2( 982.11, 43.6233 )
+scale = Vector2( 1.53125, 1.53125 )
+texture = ExtResource( 2 )
+
+[node name="icon" type="Sprite" parent="."]
+material = ExtResource( 1 )
+position = Vector2( 363.408, 107.833 )
+scale = Vector2( 8.68666, 1.79982 )
+texture = ExtResource( 2 )

@@ -1,0 +1,48 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+void fragment() {
+    if (AT_LIGHT_PASS) {
+        COLOR = vec4(1.0, 1.0, 1.0, 1.0);
+    } else {
+        COLOR = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+}
+
+void light () {
+    LIGHT = vec4(1.0, 0.0, 0.0, 1.0);
+    LIGHT = vec4(LIGHT_UV.x, LIGHT_UV.y, 0, 1.0);
+    //LIGHT = vec4(SCREEN_UV.x, SCREEN_UV.y, 0, 1.0);
+    LIGHT = vec4(FRAGCOORD.x / 1000.0, FRAGCOORD.y / 600.0, 0, 1.0);
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+
+[node name="Node2D" type="Node2D"]
+
+[node name="icon" type="Sprite" parent="."]
+material = SubResource( 2 )
+position = Vector2( 512, 300 )
+scale = Vector2( 16, 9.375 )
+texture = ExtResource( 1 )
+
+[node name="Light2D" type="Light2D" parent="."]
+position = Vector2( 115, 490 )
+texture = ExtResource( 1 )
+
+[node name="Light2D2" type="Light2D" parent="."]
+position = Vector2( 186.08, 113.925 )
+texture = ExtResource( 1 )
+
+[node name="Light2D3" type="Light2D" parent="."]
+position = Vector2( 892.998, 104.878 )
+texture = ExtResource( 1 )
+
+[node name="Light2D4" type="Light2D" parent="."]
+position = Vector2( 918.845, 513.262 )
+texture = ExtResource( 1 )

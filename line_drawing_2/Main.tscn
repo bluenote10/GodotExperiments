@@ -20,6 +20,6 @@ surfaces/0 = {
 
 [node name="MeshInstance2D" type="MeshInstance2D" parent="."]
 material = ExtResource( 1 )
-position = Vector2( 431.025, 158.449 )
+position = Vector2( 431, 158 )
 mesh = SubResource( 1 )
 script = ExtResource( 2 )

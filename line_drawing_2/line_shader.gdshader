@@ -12,7 +12,9 @@ void vertex() {
     }
     bool is_up = (uv_length < 1.5);
 
-    VERTEX.x -= 0.5;
+    // Not sure if this is valid, but at least it seems to give better
+    // results when lines fall exactly on pixels.
+    VERTEX -= 0.5;
 
     float extension = (width / 2.0) + antialias;
     vec2 displacement = UV * extension;
@@ -23,10 +25,13 @@ void vertex() {
 void fragment() {
     float dist = abs(UV.x);
     float half_width = width / 2.0;
-    if (dist < half_width) {
+    
+    float t = half_width - antialias;
+    dist -= t;
+    if( dist < 0.0 ) {
         COLOR = color;
     } else {
-        float scale = (dist - half_width) / antialias;
-        COLOR = vec4(color.rgb, 1.0 - scale);
+        dist /= antialias;
+        COLOR = vec4(color.rgb, exp(-dist*dist) * color.a);
     }
 }

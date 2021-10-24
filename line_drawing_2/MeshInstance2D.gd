@@ -12,11 +12,7 @@ extends MeshInstance2D
 
 func build_triangles(points):
     var vertices = PoolVector2Array()
-    # We must abuse colors for passing the "normals", because we
-    # need an additional bit to indicate the normal direction.
-    # FUCK: Colors are limited to positive values only => not possible either...
-    var normals = PoolColorArray()
-    # var normals = PoolVector3Array()
+    var normals = PoolVector2Array()
     
     for i in points.size() - 1:
         var j = i + 1
@@ -25,8 +21,9 @@ func build_triangles(points):
         var p2 = points[j]
         var d = p2 - p1
         var n = Vector2(d.y, -d.x).normalized()
-        var n_up = Color(+n.x, +n.y, +1)
-        var n_dn = Color(-n.x, -n.y, -1)
+        # HACK: encode the up/down bit in the length of the normal :(
+        var n_up = +n
+        var n_dn = -n * 2
         
         # print(p1, p2, d, n)
         # print(p1, p2, n1, n2)
@@ -58,6 +55,7 @@ func _ready():
 
     var points = PoolVector2Array()
     points.push_back(Vector2(0, 5))
+    points.push_back(Vector2(50, 0))
     points.push_back(Vector2(100, 0))
     points.push_back(Vector2(100, 100))
     points.push_back(Vector2(0, 200))
@@ -67,7 +65,7 @@ func _ready():
     var arrays = []
     arrays.resize(ArrayMesh.ARRAY_MAX)
     arrays[ArrayMesh.ARRAY_VERTEX] = triangles.vertices
-    arrays[ArrayMesh.ARRAY_COLOR] = triangles.normals
+    arrays[ArrayMesh.ARRAY_TEX_UV] = triangles.normals
     
     # Create the Mesh
     var mesh = ArrayMesh.new()

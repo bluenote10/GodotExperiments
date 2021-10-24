@@ -1,4 +1,5 @@
 shader_type canvas_item;
+render_mode skip_vertex_transform;
 
 uniform float width = 1.0;
 uniform float antialias = 1.0;
@@ -12,6 +13,8 @@ void vertex() {
     }
     bool is_up = (uv_length < 1.5);
 
+    VERTEX = (EXTRA_MATRIX * (WORLD_MATRIX * vec4(VERTEX, 0.0, 1.0))).xy;
+    
     // Not sure if this is valid, but at least it seems to give better
     // results when lines fall exactly on pixels.
     VERTEX -= 0.5;

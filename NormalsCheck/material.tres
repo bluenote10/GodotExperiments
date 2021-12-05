@@ -2,3 +2,4 @@
 
 [resource]
 flags_ensure_correct_normals = true
+albedo_color = Color( 0.0784314, 0.101961, 0.454902, 1 )

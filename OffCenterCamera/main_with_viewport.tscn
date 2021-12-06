@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="CubeMesh" id=1]
+
+[node name="Spatial" type="Spatial"]
+
+[node name="ViewportContainer" type="ViewportContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="ViewportContainer"]
+size = Vector2( 100, 100 )
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="Camera" type="Camera" parent="ViewportContainer/Viewport"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0 )
+
+[node name="MeshInstance" type="MeshInstance" parent="ViewportContainer/Viewport"]
+transform = Transform( 0.1, 0, 0, 0, 0.1, 0, 0, 0, 100, -2, 0, 0 )
+mesh = SubResource( 1 )
+material/0 = null
+
+[node name="MeshInstance2" type="MeshInstance" parent="ViewportContainer/Viewport"]
+transform = Transform( 0.1, 0, 0, 0, 0.1, 0, 0, 0, 100, 2, 0, 0 )
+mesh = SubResource( 1 )
+material/0 = null

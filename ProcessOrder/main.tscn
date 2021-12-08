@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://process.gd" type="Script" id=1]
+
+[node name="RootNode" type="Node"]
+script = ExtResource( 1 )
+
+[node name="Node1" type="Node" parent="."]
+script = ExtResource( 1 )
+
+[node name="Node2" type="Node" parent="."]
+script = ExtResource( 1 )
+
+[node name="SubNode1" type="Node" parent="Node2"]
+script = ExtResource( 1 )
+
+[node name="SubNode2" type="Node" parent="Node2"]
+script = ExtResource( 1 )
+
+[node name="Node3" type="Node" parent="."]
+script = ExtResource( 1 )

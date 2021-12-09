@@ -18,6 +18,13 @@ config/name="EmptyProject"
 run/main_scene="res://main.tscn"
 config/icon="res://icon.png"
 
+[network]
+
+limits/debugger_stdout/max_chars_per_second=2048000
+limits/debugger_stdout/max_messages_per_frame=10000
+limits/debugger_stdout/max_errors_per_second=100000
+limits/debugger_stdout/max_warnings_per_second=100000
+
 [rendering]
 
 environment/default_environment="res://default_env.tres"

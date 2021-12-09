@@ -8,8 +8,12 @@ func _ready():
     print("_ready [%s]" % name)
 
 
-func _process(delta):
+func _input(_event):
+    var delta = get_process_delta_time()
+    print("_input frame = %d, delta = %s [%s] event: %s" % [num_frames, delta, name, _event.as_text()])
 
+
+func _process(delta):
     # dummy load:
     var sum := 0.0
     for _i in 1000:

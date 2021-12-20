@@ -1,0 +1,13 @@
+[package]
+name = "gd_native_lib"
+version = "0.1.0"
+
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+
+gdnative = { git = "https://github.com/godot-rust/godot-rust.git", rev="5ebdbc81d6da6c56159f49a56fba616967d30f34" }
+# gdnative = "0.9"

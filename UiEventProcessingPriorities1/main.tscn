@@ -1,0 +1,44 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://main.gd" type="Script" id=1]
+[ext_resource path="res://sub.gd" type="Script" id=2]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LineEdit" type="LineEdit" parent="."]
+margin_left = 359.0
+margin_top = 336.0
+margin_right = 534.0
+margin_bottom = 360.0
+
+[node name="Button" type="Button" parent="."]
+margin_left = 361.0
+margin_top = 454.0
+margin_right = 536.0
+margin_bottom = 474.0
+
+[node name="ControlB" type="Control" parent="."]
+margin_left = 337.0
+margin_top = 49.0
+margin_right = 382.0
+margin_bottom = 588.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ControlA" type="Control" parent="."]
+margin_left = 308.0
+margin_top = 257.0
+margin_right = 499.0
+margin_bottom = 544.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}

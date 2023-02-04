@@ -1,0 +1,5 @@
+[configuration]
+entry_symbol = "gdextension_rust_init"
+
+[libraries]
+linux.64 = "res://rust/target/debug/libhello_world.so"

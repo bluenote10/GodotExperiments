@@ -1,0 +1,11 @@
+[package]
+name = "hello-world"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+godot = { git = "https://github.com/godot-rust/gdextension", commit = "93b82010b6a00d0df28b722693cc9a83b733e5dc", default-features = false, features = ["formatted", "convenience"] }

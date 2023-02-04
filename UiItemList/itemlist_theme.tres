@@ -1,0 +1,7 @@
+[gd_resource type="Theme" format=2]
+
+[resource]
+ItemList/constants/hseparation = 20
+ItemList/constants/icon_margin = 10
+ItemList/constants/line_separation = 8
+ItemList/constants/vseparation = 10

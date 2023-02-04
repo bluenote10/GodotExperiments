@@ -1,0 +1,20 @@
+[gd_scene format=2]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 99.0
+margin_top = 34.0
+margin_right = -641.0
+margin_bottom = -157.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ItemList" type="ItemList" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false ]
+__meta__ = {
+"_edit_use_anchors_": false
+}

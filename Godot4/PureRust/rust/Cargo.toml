@@ -8,4 +8,5 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-godot = { git = "https://github.com/godot-rust/gdextension", rev = "a2b57deff462f273a590e48489d7e89168389a9f", default-features = false, features = ["formatted", "convenience", "codegen-full"] }
+# godot = { git = "https://github.com/godot-rust/gdextension", rev = "eb5d43b", default-features = false, features = ["formatted", "codegen-full"] }
+godot = { path = "/home/fabian/git/_ext/gdextension/godot" }

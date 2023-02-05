@@ -1,3 +1,4 @@
 [gd_scene format=3 uid="uid://djko14ejgtwt6"]
 
 [node name="Ui" type="Ui"]
+anchors_preset = 15

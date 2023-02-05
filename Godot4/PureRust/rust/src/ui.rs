@@ -1,7 +1,5 @@
-use godot::engine::control::{GrowDirection, LayoutPreset};
-use godot::engine::global::Side;
-use godot::engine::node::InternalMode;
-use godot::engine::{Control, Engine, Label};
+use crate::utils::{gd_add_child, set_full_rect, set_full_rect_generic};
+use godot::engine::{Control, Engine, Label, VBoxContainer};
 use godot::prelude::*;
 
 #[derive(GodotClass)]
@@ -23,7 +21,7 @@ impl Ui {
 #[godot_api]
 impl GodotExt for Ui {
     fn init(mut base: Base<Self::Base>) -> Self {
-        godot_print!("init called");
+        godot_print!("Ui::init called");
 
         set_full_rect(&mut base);
         // set_full_rect_generic(base.deref_mut());
@@ -34,15 +32,23 @@ impl GodotExt for Ui {
     }
 
     fn ready(&mut self) {
-        godot_print!("ready called");
+        godot_print!("Ui::ready called");
+
+        let mut vbox = VBoxContainer::new_alloc();
+
         let mut label = Label::new_alloc();
         label.set_text("Hello World".into());
 
         // Pointless, but just to demonstrate generic call:
         set_full_rect_generic(&mut label);
 
-        self.base
-            .add_child(label.upcast(), false, InternalMode::INTERNAL_MODE_DISABLED);
+        gd_add_child!(vbox, label);
+
+        // let another_node = Gd::<AnotherNode>::with_base(AnotherNode::init);
+        let another_node = Gd::<AnotherNode>::new_default(); // This seems to call AnotherNode::init implicitly, which is nice.
+        gd_add_child!(vbox, another_node);
+
+        gd_add_child!(self.base, vbox);
     }
 
     fn process(&mut self, delta: f64) {
@@ -51,27 +57,50 @@ impl GodotExt for Ui {
             // let mut label = self.base.get_node_as::<Label>("../Label");
             // label.set_text(format!("Hello world: {}", self.time).into());
             // label.set_rotation_degrees(self.time * 90.0);
-            godot_print!("process called {}", self.time);
+            // godot_print!("Ui::process called {}", self.time);
         }
     }
 }
 
-fn set_full_rect(control: &mut Gd<Control>) {
-    control.set_anchors_preset(LayoutPreset::PRESET_FULL_RECT, false);
-    control.set_anchor(Side::SIDE_RIGHT, 1.0, false, true);
-    control.set_anchor(Side::SIDE_BOTTOM, 1.0, false, true);
-    control.set_h_grow_direction(GrowDirection::GROW_DIRECTION_BOTH);
-    control.set_v_grow_direction(GrowDirection::GROW_DIRECTION_BOTH);
+#[derive(GodotClass)]
+#[class(base=Label)]
+pub struct AnotherNode {
+    #[base]
+    base: Base<Label>,
+    #[export(
+        getter = "get_rotation",
+        setter = "set_rotation",
+        variant_type = "::godot::sys::VariantType::Float" // Int, String, Bool, ...
+    )]
+    rotation: f64,
 }
 
-fn set_full_rect_generic<C>(control: &mut Gd<C>)
-where
-    C: GodotClass + Inherits<Control>,
-{
-    let mut control = control.share().upcast();
-    control.set_anchors_preset(LayoutPreset::PRESET_FULL_RECT, false);
-    control.set_anchor(Side::SIDE_RIGHT, 1.0, false, true);
-    control.set_anchor(Side::SIDE_BOTTOM, 1.0, false, true);
-    control.set_h_grow_direction(GrowDirection::GROW_DIRECTION_BOTH);
-    control.set_v_grow_direction(GrowDirection::GROW_DIRECTION_BOTH);
+#[godot_api]
+impl AnotherNode {
+    #[func]
+    pub fn get_rotation(&self) -> f64 {
+        self.rotation
+    }
+
+    #[func]
+    pub fn set_rotation(&mut self, rotation: f64) {
+        self.rotation = rotation;
+        self.base.set_rotation_degrees(rotation)
+    }
+}
+
+#[godot_api]
+impl GodotExt for AnotherNode {
+    fn init(mut base: Base<Self::Base>) -> Self {
+        godot_print!("AnotherNode::init called");
+        base.set_text("Another Node".into());
+        Self {
+            base,
+            rotation: 0.0,
+        }
+    }
+
+    fn ready(&mut self) {
+        godot_print!("AnotherNode::ready called");
+    }
 }

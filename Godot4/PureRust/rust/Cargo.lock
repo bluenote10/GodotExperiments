@@ -75,7 +75,7 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 [[package]]
 name = "godot"
 version = "0.1.0"
-source = "git+https://github.com/godot-rust/gdextension?rev=93b82010b6a00d0df28b722693cc9a83b733e5dc#93b82010b6a00d0df28b722693cc9a83b733e5dc"
+source = "git+https://github.com/godot-rust/gdextension?rev=a2b57deff462f273a590e48489d7e89168389a9f#a2b57deff462f273a590e48489d7e89168389a9f"
 dependencies = [
  "godot-core",
  "godot-macros",
@@ -84,7 +84,7 @@ dependencies = [
 [[package]]
 name = "godot-codegen"
 version = "0.1.0"
-source = "git+https://github.com/godot-rust/gdextension?rev=93b82010b6a00d0df28b722693cc9a83b733e5dc#93b82010b6a00d0df28b722693cc9a83b733e5dc"
+source = "git+https://github.com/godot-rust/gdextension?rev=a2b57deff462f273a590e48489d7e89168389a9f#a2b57deff462f273a590e48489d7e89168389a9f"
 dependencies = [
  "heck",
  "nanoserde",
@@ -97,7 +97,7 @@ dependencies = [
 [[package]]
 name = "godot-core"
 version = "0.1.0"
-source = "git+https://github.com/godot-rust/gdextension?rev=93b82010b6a00d0df28b722693cc9a83b733e5dc#93b82010b6a00d0df28b722693cc9a83b733e5dc"
+source = "git+https://github.com/godot-rust/gdextension?rev=a2b57deff462f273a590e48489d7e89168389a9f#a2b57deff462f273a590e48489d7e89168389a9f"
 dependencies = [
  "glam",
  "godot-codegen",
@@ -108,7 +108,7 @@ dependencies = [
 [[package]]
 name = "godot-ffi"
 version = "0.1.0"
-source = "git+https://github.com/godot-rust/gdextension?rev=93b82010b6a00d0df28b722693cc9a83b733e5dc#93b82010b6a00d0df28b722693cc9a83b733e5dc"
+source = "git+https://github.com/godot-rust/gdextension?rev=a2b57deff462f273a590e48489d7e89168389a9f#a2b57deff462f273a590e48489d7e89168389a9f"
 dependencies = [
  "bindgen",
  "godot-codegen",
@@ -118,7 +118,7 @@ dependencies = [
 [[package]]
 name = "godot-macros"
 version = "0.1.0"
-source = "git+https://github.com/godot-rust/gdextension?rev=93b82010b6a00d0df28b722693cc9a83b733e5dc#93b82010b6a00d0df28b722693cc9a83b733e5dc"
+source = "git+https://github.com/godot-rust/gdextension?rev=a2b57deff462f273a590e48489d7e89168389a9f#a2b57deff462f273a590e48489d7e89168389a9f"
 dependencies = [
  "proc-macro2",
  "quote",

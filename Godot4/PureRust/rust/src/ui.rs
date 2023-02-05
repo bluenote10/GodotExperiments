@@ -1,3 +1,4 @@
+use crate::render_stats::RenderStats;
 use crate::utils::{gd_add_child, set_full_rect, set_full_rect_generic};
 use godot::engine::{Control, Engine, Label, VBoxContainer};
 use godot::prelude::*;
@@ -49,6 +50,9 @@ impl GodotExt for Ui {
         gd_add_child!(vbox, another_node);
 
         gd_add_child!(self.base, vbox);
+
+        let render_stats = Gd::<RenderStats>::new_default();
+        gd_add_child!(self.base, render_stats);
     }
 
     fn process(&mut self, delta: f64) {

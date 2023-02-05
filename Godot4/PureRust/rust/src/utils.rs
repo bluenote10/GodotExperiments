@@ -1,3 +1,5 @@
+#![allow(unused_macros)]
+
 use std::ops::DerefMut;
 
 use godot::engine::control::{GrowDirection, LayoutPreset};
@@ -16,6 +18,37 @@ macro_rules! gd_add_child {
 }
 
 pub(crate) use gd_add_child;
+
+macro_rules! gd_set_anchor_left {
+    ($control:expr, $value:expr) => {
+        $control.set_anchor(godot::engine::global::Side::SIDE_LEFT, $value, false, true);
+    };
+}
+macro_rules! gd_set_anchor_right {
+    ($control:expr, $value:expr) => {
+        $control.set_anchor(godot::engine::global::Side::SIDE_RIGHT, $value, false, true);
+    };
+}
+macro_rules! gd_set_anchor_top {
+    ($control:expr, $value:expr) => {
+        $control.set_anchor(godot::engine::global::Side::SIDE_TOP, $value, false, true);
+    };
+}
+macro_rules! gd_set_anchor_bottom {
+    ($control:expr, $value:expr) => {
+        $control.set_anchor(
+            godot::engine::global::Side::SIDE_BOTTOM,
+            $value,
+            false,
+            true,
+        );
+    };
+}
+
+pub(crate) use gd_set_anchor_bottom;
+pub(crate) use gd_set_anchor_left;
+pub(crate) use gd_set_anchor_right;
+pub(crate) use gd_set_anchor_top;
 
 pub fn set_full_rect(control: &mut Gd<Control>) {
     control.set_anchors_preset(LayoutPreset::PRESET_FULL_RECT, false);

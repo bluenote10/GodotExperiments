@@ -20,7 +20,7 @@ impl GodotExt for RenderStats {
     }
 
     /*
-    fn input(&mut self, event: InputEvent) {
+    fn input(&mut self, event: Gd<InputEvent>) {
         godot_print!("RenderStats::input called");
         godot_print!("{:?}", event);
         # GDScript version

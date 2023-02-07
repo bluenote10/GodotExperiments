@@ -1,6 +1,5 @@
 use godot::prelude::*;
 
-mod render_stats;
 mod sequencer;
 mod ui;
 mod utils;

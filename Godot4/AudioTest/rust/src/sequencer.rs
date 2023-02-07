@@ -94,6 +94,15 @@ impl GodotExt for Sequencer {
             .unwrap()
             .cast::<AudioStreamGeneratorPlayback>();
 
+        godot_print!(
+            "AudioStreamGeneratorPlayback = {:?}",
+            audio_stream_generator_playback
+        );
+        godot_print!(
+            "audio_stream_generator.get_length() = {}",
+            audio_stream_generator.get_length()
+        );
+
         self.audio_refs = Some(AudioRefs {
             audio_stream_player,
             audio_stream_generator,
@@ -106,7 +115,15 @@ impl GodotExt for Sequencer {
             let Some(audio_refs) = &mut self.audio_refs else {
                 return;
             };
-            let playback = &mut audio_refs.audio_stream_generator_playback;
+            // let playback = &mut audio_refs.audio_stream_generator_playback;
+
+            let mut playback = audio_refs
+                .audio_stream_player
+                .get_stream_playback()
+                .unwrap()
+                .cast::<AudioStreamGeneratorPlayback>();
+
+            godot_print!("playback = {:?}", playback);
 
             let to_fill = playback.get_frames_available() as usize;
 
@@ -125,7 +142,7 @@ impl GodotExt for Sequencer {
                 playback.push_buffer(buffer);
             }
             // Strange: This print makes it more likely that it works?!
-            godot_print!("done");
+            // godot_print!("done");
         }
     }
 }

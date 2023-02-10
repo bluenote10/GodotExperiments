@@ -1,5 +1,6 @@
 use godot::prelude::*;
 
+mod instantiation_order;
 mod render_stats;
 mod ui;
 mod utils;

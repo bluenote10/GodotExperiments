@@ -1,3 +1,4 @@
+use crate::instantiation_order::{self, InstantiationOrder};
 use crate::render_stats::RenderStats;
 use crate::utils::{gd_add_child, set_full_rect, set_full_rect_generic};
 use godot::engine::{Control, Engine, Label, VBoxContainer};
@@ -9,14 +10,6 @@ pub struct Ui {
     #[base]
     base: Base<Control>,
     time: f64,
-}
-
-#[godot_api]
-impl Ui {
-    #[func]
-    pub fn hello_world(&self, text: GodotString) {
-        godot_print!("Hello world: {}", text);
-    }
 }
 
 #[godot_api]
@@ -53,6 +46,9 @@ impl GodotExt for Ui {
 
         let render_stats = Gd::<RenderStats>::new_default();
         gd_add_child!(self.base, render_stats);
+
+        let instantiation_order = Gd::<InstantiationOrder>::new_default();
+        gd_add_child!(self.base, instantiation_order);
     }
 
     fn process(&mut self, delta: f64) {

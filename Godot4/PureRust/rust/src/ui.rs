@@ -1,4 +1,4 @@
-use crate::instantiation_order::{self, InstantiationOrder};
+use crate::instantiation_order::InstantiationOrder;
 use crate::render_stats::RenderStats;
 use crate::utils::{gd_add_child, set_full_rect, set_full_rect_generic};
 use godot::engine::{Control, Engine, Label, VBoxContainer};
@@ -67,11 +67,13 @@ impl GodotExt for Ui {
 pub struct AnotherNode {
     #[base]
     base: Base<Label>,
+    /* // Used to work, syntax changed?
     #[export(
         getter = "get_rotation",
         setter = "set_rotation",
         variant_type = "::godot::sys::VariantType::Float" // Int, String, Bool, ...
     )]
+    */
     rotation: f64,
 }
 

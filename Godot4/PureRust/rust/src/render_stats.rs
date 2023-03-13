@@ -55,7 +55,7 @@ impl RenderStats {
         utils::gd_set_anchor_right!(label, 1.0);
         label.set_horizontal_alignment(HorizontalAlignment::HORIZONTAL_ALIGNMENT_RIGHT);
         label.set_h_grow_direction(GrowDirection::GROW_DIRECTION_BEGIN);
-        label.add_theme_color_override("font_color".into(), Color::new(0.6, 0.6, 0.9, 1.0));
+        label.add_theme_color_override("font_color".into(), Color::from_rgb(0.6, 0.6, 0.9));
 
         utils::gd_add_child!(self.base, label.share());
 

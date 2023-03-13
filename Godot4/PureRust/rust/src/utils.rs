@@ -1,10 +1,8 @@
 #![allow(unused_macros)]
 
-use std::ops::DerefMut;
-
 use godot::engine::control::{GrowDirection, LayoutPreset};
 use godot::engine::global::Side;
-use godot::engine::{Control, Label};
+use godot::engine::Control;
 use godot::prelude::*;
 
 macro_rules! gd_add_child {

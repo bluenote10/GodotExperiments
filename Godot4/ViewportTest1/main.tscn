@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://ofso50fqrm2x"]
+
+[ext_resource type="Script" path="res://DrawingNode2D.gd" id="1_tlb3o"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ycma8"]
+viewport_path = NodePath("SubViewport")
+
+[node name="Node2D" type="Node2D"]
+position = Vector2(200, 200)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(100, 100)
+texture = SubResource("ViewportTexture_ycma8")
+centered = false
+
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(200, 100)
+
+[node name="DrawingNode2D" type="Node2D" parent="SubViewport"]
+script = ExtResource("1_tlb3o")

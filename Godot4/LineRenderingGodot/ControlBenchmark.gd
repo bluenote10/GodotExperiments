@@ -12,12 +12,15 @@ func _ready():
 	label.anchor_right = 1.0
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	label.add_theme_color_override("font_color", Color(0.1, 0.1, 0.3))
 	add_child(label)
 
 
 func _process(_delta):
-	queue_redraw()
 	label.text = "FPS: %s" % Engine.get_frames_per_second()
+	# Note that it doesn't make a (significant) difference if the drawing content
+	# is dynamic or static.
+	# queue_redraw()
 
 
 func _draw():

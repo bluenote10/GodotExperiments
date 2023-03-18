@@ -14,3 +14,7 @@ config/name="Empty"
 run/main_scene="res://benchmark.tscn"
 config/features=PackedStringArray("4.0", "Forward Plus")
 config/icon="res://icon.svg"
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(1, 1, 1, 1)

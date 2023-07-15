@@ -9,7 +9,7 @@ pub struct InstantiationOrder {
 }
 
 #[godot_api]
-impl GodotExt for InstantiationOrder {
+impl NodeVirtual for InstantiationOrder {
     fn init(base: Base<Self::Base>) -> Self {
         godot_print!("InstantiationOrder::init called");
         // add_subtree_entire_tree(&mut base.share());
@@ -134,7 +134,7 @@ impl LoggingNode {
 }
 
 #[godot_api]
-impl GodotExt for LoggingNode {
+impl NodeVirtual for LoggingNode {
     /*
     fn init(mut base: Base<Self::Base>, name: String) -> Self {
         godot_print!("LoggingNode::init [{}] called", name);

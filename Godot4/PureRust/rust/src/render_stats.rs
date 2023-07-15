@@ -13,7 +13,7 @@ pub struct RenderStats {
 }
 
 #[godot_api]
-impl GodotExt for RenderStats {
+impl NodeVirtual for RenderStats {
     fn init(base: Base<Self::Base>) -> Self {
         godot_print!("RenderStats::init called");
         Self { base, label: None }

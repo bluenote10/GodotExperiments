@@ -1,7 +1,7 @@
 use crate::instantiation_order::InstantiationOrder;
 use crate::render_stats::RenderStats;
 use crate::utils::{gd_add_child, set_full_rect, set_full_rect_generic};
-use godot::engine::{Control, Engine, Label, VBoxContainer};
+use godot::engine::{Control, ControlVirtual, Engine, Label, LabelVirtual, VBoxContainer};
 use godot::prelude::*;
 
 #[derive(GodotClass)]
@@ -13,7 +13,7 @@ pub struct Ui {
 }
 
 #[godot_api]
-impl GodotExt for Ui {
+impl ControlVirtual for Ui {
     fn init(mut base: Base<Self::Base>) -> Self {
         godot_print!("Ui::init called");
 
@@ -87,12 +87,12 @@ impl AnotherNode {
     #[func]
     pub fn set_rotation(&mut self, rotation: f64) {
         self.rotation = rotation;
-        self.base.set_rotation_degrees(rotation)
+        self.base.set_rotation_degrees(rotation as f32)
     }
 }
 
 #[godot_api]
-impl GodotExt for AnotherNode {
+impl LabelVirtual for AnotherNode {
     fn init(mut base: Base<Self::Base>) -> Self {
         godot_print!("AnotherNode::init called");
         base.set_text("Another Node".into());

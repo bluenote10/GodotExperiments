@@ -1,7 +1,7 @@
 use crate::instantiation_order::InstantiationOrder;
 use crate::render_stats::RenderStats;
 use crate::utils::{gd_add_child, set_full_rect, set_full_rect_generic};
-use godot::engine::{Control, ControlVirtual, Engine, Label, LabelVirtual, VBoxContainer};
+use godot::engine::{Button, Control, ControlVirtual, Engine, Label, LabelVirtual, VBoxContainer};
 use godot::prelude::*;
 
 #[derive(GodotClass)]
@@ -41,6 +41,9 @@ impl ControlVirtual for Ui {
         // let another_node = Gd::<AnotherNode>::with_base(AnotherNode::init);
         let another_node = Gd::<AnotherNode>::new_default(); // This seems to call AnotherNode::init implicitly, which is nice.
         gd_add_child!(vbox, another_node);
+
+        let counter = Gd::<Counter>::new_default();
+        gd_add_child!(vbox, counter);
 
         gd_add_child!(self.base, vbox);
 
@@ -104,5 +107,76 @@ impl LabelVirtual for AnotherNode {
 
     fn ready(&mut self) {
         godot_print!("AnotherNode::ready called");
+    }
+}
+
+#[derive(GodotClass)]
+#[class(base=Control)]
+pub struct Counter {
+    #[base]
+    base: Base<Control>,
+    label: Gd<Label>,
+    count: i32,
+}
+
+impl Counter {
+    fn update_label(&mut self) {
+        self.label
+            .set_text(format!("Counter: {}", self.count).into());
+    }
+}
+
+#[godot_api]
+impl Counter {
+    #[func]
+    fn on_inc_button_pressed(&mut self) {
+        godot_print!("inc pressed");
+        self.count += 1;
+        self.update_label();
+    }
+
+    #[func]
+    fn on_dec_button_pressed(&mut self) {
+        godot_print!("dec pressed");
+        self.count -= 1;
+        self.update_label();
+    }
+}
+
+#[godot_api]
+impl ControlVirtual for Counter {
+    fn init(mut base: Base<Self::Base>) -> Self {
+        let mut vbox = VBoxContainer::new_alloc();
+
+        let label = Label::new_alloc();
+        gd_add_child!(vbox, label.share());
+
+        let mut button_inc = Button::new_alloc();
+        button_inc.set_text("Inc".into());
+        button_inc.connect(
+            "pressed".into(),
+            base.callable("on_inc_button_pressed"), //Callable::from_object_method(base.get_node_as::<Counter>("."), "on_inc_button_pressed"),
+        );
+        gd_add_child!(vbox, button_inc);
+
+        let mut button_dec = Button::new_alloc();
+        button_dec.set_text("Dec".into());
+        button_dec.connect(
+            "pressed".into(),
+            base.callable("on_dec_button_pressed"), //Callable::from_object_method(base.get_node_as::<Counter>("."), "on_inc_button_pressed"),
+        );
+        gd_add_child!(vbox, button_dec);
+
+        gd_add_child!(base, vbox);
+
+        Self {
+            base,
+            label,
+            count: 0,
+        }
+    }
+
+    fn ready(&mut self) {
+        self.update_label();
     }
 }

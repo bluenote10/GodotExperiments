@@ -15,6 +15,6 @@ script = ExtResource("1_vs31r")
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
-text = "Hello World"
+text = "Hello world: 2.3415536666666674"
 
 [node name="Ui" type="Ui" parent="."]

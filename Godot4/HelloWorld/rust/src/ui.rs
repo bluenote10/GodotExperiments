@@ -1,4 +1,4 @@
-use godot::engine::{CanvasLayer, Label};
+use godot::engine::{CanvasLayer, CanvasLayerVirtual, Label};
 use godot::prelude::*;
 
 #[derive(GodotClass)]
@@ -18,7 +18,7 @@ impl Ui {
 }
 
 #[godot_api]
-impl GodotExt for Ui {
+impl CanvasLayerVirtual for Ui {
     fn init(base: Base<Self::Base>) -> Self {
         Self { base, time: 0.0 }
     }

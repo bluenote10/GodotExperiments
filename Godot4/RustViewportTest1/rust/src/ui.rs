@@ -55,38 +55,46 @@ impl Node2DVirtual for CustomDrawingNode2D {
     }
 
     fn draw(&mut self) {
-        self.base.draw_line(
-            Vector2::new(0.5, 0.5),
-            Vector2::new(200.5, 0.5),
-            Color::from_rgb(0.0, 1.0, 0.0),
-            0.5,
-            true,
-        );
-        self.base.draw_line(
-            Vector2::new(0.5, 0.5),
-            Vector2::new(0.5, 100.5),
-            Color::from_rgb(0.0, 1.0, 0.0),
-            0.5,
-            true,
-        );
-        self.base.draw_line(
-            Vector2::new(0.5, 0.5),
-            Vector2::new(200.5, 100.5),
-            Color::from_rgb(0.0, 1.0, 0.0),
-            0.5,
-            true,
-        );
+        self.base
+            .draw_line_ex(
+                Vector2::new(0.5, 0.5),
+                Vector2::new(200.5, 0.5),
+                Color::from_rgb(0.0, 1.0, 0.0),
+            )
+            .width(0.5)
+            .antialiased(true)
+            .done();
+        self.base
+            .draw_line_ex(
+                Vector2::new(0.5, 0.5),
+                Vector2::new(0.5, 100.5),
+                Color::from_rgb(0.0, 1.0, 0.0),
+            )
+            .width(0.5)
+            .antialiased(true)
+            .done();
+        self.base
+            .draw_line_ex(
+                Vector2::new(0.5, 0.5),
+                Vector2::new(200.5, 100.5),
+                Color::from_rgb(0.0, 1.0, 0.0),
+            )
+            .width(0.5)
+            .antialiased(true)
+            .done();
 
         let x_1 = 50.5;
         let y_1 = 50.5;
         let x_2 = x_1 + 50.0 * self.time.cos() as f32;
         let y_2 = y_1 + 50.0 * self.time.sin() as f32;
-        self.base.draw_line(
-            Vector2::new(x_1, y_1),
-            Vector2::new(x_2, y_2),
-            Color::from_rgb(1.0, 0.0, 0.0),
-            2.0,
-            true,
-        );
+        self.base
+            .draw_line_ex(
+                Vector2::new(x_1, y_1),
+                Vector2::new(x_2, y_2),
+                Color::from_rgb(1.0, 0.0, 0.0),
+            )
+            .width(2.0)
+            .antialiased(true)
+            .done();
     }
 }

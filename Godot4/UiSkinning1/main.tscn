@@ -1,4 +1,12 @@
-[gd_scene format=3 uid="uid://djko14ejgtwt6"]
+[gd_scene load_steps=3 format=3 uid="uid://djko14ejgtwt6"]
+
+[ext_resource type="FontFile" uid="uid://dkgkubbhp3ump" path="res://font/Ubuntu-R.ttf" id="1_64wt1"]
+
+[sub_resource type="Theme" id="Theme_178qh"]
+default_font = ExtResource("1_64wt1")
+default_font_size = 14
+Button/colors/font_color = Color(1, 0, 0, 1)
 
 [node name="Ui" type="Ui"]
 anchors_preset = 15
+theme = SubResource("Theme_178qh")

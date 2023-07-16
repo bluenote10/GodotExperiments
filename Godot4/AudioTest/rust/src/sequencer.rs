@@ -29,7 +29,7 @@ struct AudioRefs {
 }
 
 #[godot_api]
-impl GodotExt for Sequencer {
+impl NodeVirtual for Sequencer {
     /*
     fn init(mut base: Base<Self::Base>) -> Self {
         godot_print!("Sequencer::init called");
@@ -87,7 +87,7 @@ impl GodotExt for Sequencer {
         audio_stream_player.set_stream(audio_stream_generator.share().upcast());
 
         // Play must be called before get_stream_playback
-        audio_stream_player.play(0.0);
+        audio_stream_player.play();
 
         let audio_stream_generator_playback = audio_stream_player
             .get_stream_playback()

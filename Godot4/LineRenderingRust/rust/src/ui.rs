@@ -42,13 +42,15 @@ impl ControlVirtual for Ui {
             let y_1 = dist.sample(&mut rng);
             let x_2 = dist.sample(&mut rng);
             let y_2 = dist.sample(&mut rng);
-            self.base.draw_line(
-                Vector2::new(x_1, y_1),
-                Vector2::new(x_2, y_2),
-                Color::from_rgb(1.0, 0.0, 0.0),
-                0.5,
-                true,
-            );
+            self.base
+                .draw_line_ex(
+                    Vector2::new(x_1, y_1),
+                    Vector2::new(x_2, y_2),
+                    Color::from_rgb(1.0, 0.0, 0.0),
+                )
+                .width(0.5)
+                .antialiased(true)
+                .done();
         }
     }
 }

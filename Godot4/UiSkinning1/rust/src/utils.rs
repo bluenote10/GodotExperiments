@@ -1,19 +1,13 @@
 #![allow(unused_macros)]
 
-use std::ops::DerefMut;
-
 use godot::engine::control::{GrowDirection, LayoutPreset};
 use godot::engine::global::Side;
-use godot::engine::{Control, Label};
+use godot::engine::Control;
 use godot::prelude::*;
 
 macro_rules! gd_add_child {
     ($base:expr, $child:expr) => {
-        $base.add_child(
-            $child.upcast(),
-            false,
-            godot::engine::node::InternalMode::INTERNAL_MODE_DISABLED,
-        );
+        $base.add_child($child.upcast());
     };
 }
 
@@ -21,17 +15,17 @@ pub(crate) use gd_add_child;
 
 macro_rules! gd_set_anchor_left {
     ($control:expr, $value:expr) => {
-        $control.set_anchor(godot::engine::global::Side::SIDE_LEFT, $value, false, true);
+        $control.set_anchor(godot::engine::global::Side::SIDE_LEFT, $value);
     };
 }
 macro_rules! gd_set_anchor_right {
     ($control:expr, $value:expr) => {
-        $control.set_anchor(godot::engine::global::Side::SIDE_RIGHT, $value, false, true);
+        $control.set_anchor(godot::engine::global::Side::SIDE_RIGHT, $value);
     };
 }
 macro_rules! gd_set_anchor_top {
     ($control:expr, $value:expr) => {
-        $control.set_anchor(godot::engine::global::Side::SIDE_TOP, $value, false, true);
+        $control.set_anchor(godot::engine::global::Side::SIDE_TOP, $value);
     };
 }
 macro_rules! gd_set_anchor_bottom {
@@ -51,9 +45,9 @@ pub(crate) use gd_set_anchor_right;
 pub(crate) use gd_set_anchor_top;
 
 pub fn set_full_rect(control: &mut Gd<Control>) {
-    control.set_anchors_preset(LayoutPreset::PRESET_FULL_RECT, false);
-    control.set_anchor(Side::SIDE_RIGHT, 1.0, false, true);
-    control.set_anchor(Side::SIDE_BOTTOM, 1.0, false, true);
+    control.set_anchors_preset(LayoutPreset::PRESET_FULL_RECT);
+    control.set_anchor(Side::SIDE_RIGHT, 1.0);
+    control.set_anchor(Side::SIDE_BOTTOM, 1.0);
     control.set_h_grow_direction(GrowDirection::GROW_DIRECTION_BOTH);
     control.set_v_grow_direction(GrowDirection::GROW_DIRECTION_BOTH);
 }
@@ -63,9 +57,9 @@ where
     C: GodotClass + Inherits<Control>,
 {
     let mut control = control.share().upcast();
-    control.set_anchors_preset(LayoutPreset::PRESET_FULL_RECT, false);
-    control.set_anchor(Side::SIDE_RIGHT, 1.0, false, true);
-    control.set_anchor(Side::SIDE_BOTTOM, 1.0, false, true);
+    control.set_anchors_preset(LayoutPreset::PRESET_FULL_RECT);
+    control.set_anchor(Side::SIDE_RIGHT, 1.0);
+    control.set_anchor(Side::SIDE_BOTTOM, 1.0);
     control.set_h_grow_direction(GrowDirection::GROW_DIRECTION_BOTH);
     control.set_v_grow_direction(GrowDirection::GROW_DIRECTION_BOTH);
 }

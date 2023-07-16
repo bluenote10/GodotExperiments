@@ -1,7 +1,7 @@
 use crate::utils;
 use godot::engine::control::GrowDirection;
-use godot::engine::global::HorizontalAlignment;
-use godot::engine::{Engine, InputEvent, Label};
+use godot::engine::global::{HorizontalAlignment, Key};
+use godot::engine::{Engine, InputEvent, InputEventKey, Label};
 use godot::prelude::*;
 
 #[derive(GodotClass)]
@@ -19,21 +19,20 @@ impl NodeVirtual for RenderStats {
         Self { base, label: None }
     }
 
-    /*
     fn input(&mut self, event: Gd<InputEvent>) {
         godot_print!("RenderStats::input called");
         godot_print!("{:?}", event);
-        /*
-        # GDScript version
-        if event is InputEventKey and event.scancode == KEY_ASCIICIRCUM and event.pressed and not event.echo:
-            if self.label.is_some() {
-                self.remove_label();
-            } else {
-                self.add_label();
+        if let Some(event) = event.try_cast::<InputEventKey>() {
+            if event.get_keycode() == Key::KEY_ASCIICIRCUM && event.is_pressed() && !event.is_echo()
+            {
+                if self.label.is_some() {
+                    self.remove_label();
+                } else {
+                    self.add_label();
+                }
             }
-         */
+        }
     }
-    */
 
     fn process(&mut self, _delta: f64) {
         if !Engine::singleton().is_editor_hint() {

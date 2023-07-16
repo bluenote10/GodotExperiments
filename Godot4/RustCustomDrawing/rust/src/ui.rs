@@ -29,8 +29,6 @@ impl ControlVirtual for Ui {
             Vector2::new(0.5, 0.5),
             Vector2::new(100.5, 100.5),
             Color::from_rgb(0.0, 0.0, 1.0),
-            0.5,
-            true,
         );
     }
 }

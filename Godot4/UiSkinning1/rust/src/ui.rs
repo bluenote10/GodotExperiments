@@ -1,7 +1,8 @@
 use crate::utils::{gd_add_child, set_full_rect, set_full_rect_generic};
 use godot::engine::text_server::{FontAntialiasing, Hinting, SubpixelPositioning};
 use godot::engine::{
-    Button, Control, Engine, FontFile, HBoxContainer, Label, MarginContainer, Theme, VBoxContainer,
+    Button, Control, ControlVirtual, Engine, FontFile, HBoxContainer, Label, LabelVirtual,
+    MarginContainer, Theme, VBoxContainer,
 };
 use godot::prelude::*;
 
@@ -14,7 +15,7 @@ pub struct Ui {
 }
 
 #[godot_api]
-impl GodotExt for Ui {
+impl ControlVirtual for Ui {
     fn init(mut base: Base<Self::Base>) -> Self {
         godot_print!("Ui::init called");
 
@@ -37,7 +38,7 @@ impl GodotExt for Ui {
         theme.set_color(
             "font_color".into(),
             "Button".into(),
-            Color::new(1.0, 0.0, 0.0, 1.0),
+            Color::from_rgba(1.0, 0.0, 0.0, 1.0),
         );
         //theme.set_font("font".into(), "Button".into(), font.share().upcast());
         theme.set_default_font(font.upcast());
@@ -116,37 +117,14 @@ impl GodotExt for Ui {
 pub struct AnotherNode {
     #[base]
     base: Base<Label>,
-    #[export(
-        getter = "get_rotation",
-        setter = "set_rotation",
-        variant_type = "::godot::sys::VariantType::Float" // Int, String, Bool, ...
-    )]
-    rotation: f64,
 }
 
 #[godot_api]
-impl AnotherNode {
-    #[func]
-    pub fn get_rotation(&self) -> f64 {
-        self.rotation
-    }
-
-    #[func]
-    pub fn set_rotation(&mut self, rotation: f64) {
-        self.rotation = rotation;
-        self.base.set_rotation_degrees(rotation)
-    }
-}
-
-#[godot_api]
-impl GodotExt for AnotherNode {
+impl LabelVirtual for AnotherNode {
     fn init(mut base: Base<Self::Base>) -> Self {
         godot_print!("AnotherNode::init called");
         base.set_text("Another Node".into());
-        Self {
-            base,
-            rotation: 0.0,
-        }
+        Self { base }
     }
 
     fn ready(&mut self) {

@@ -1,6 +1,6 @@
 use crate::sequencer::Sequencer;
 use crate::utils::gd_add_child;
-use godot::engine::Control;
+use godot::engine::{Control, ControlVirtual};
 use godot::prelude::*;
 
 #[derive(GodotClass)]
@@ -12,7 +12,7 @@ pub struct Ui {
 }
 
 #[godot_api]
-impl GodotExt for Ui {
+impl ControlVirtual for Ui {
     fn init(mut base: Base<Self::Base>) -> Self {
         godot_print!("Ui::init called");
         Self { base, time: 0.0 }

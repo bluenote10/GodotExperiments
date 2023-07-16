@@ -8,8 +8,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-godot = { git = "https://github.com/Mercerenies/rust-gdextension", rev = "73b1b6d299ab762a8a28a4b2b196ee89e2d3dcc1", default-features = false, features = ["formatted", "codegen-full"] }
-# godot = { git = "https://github.com/godot-rust/gdextension", rev = "3126f120e5169036233b593aac67abd52f75b652", default-features = false, features = ["formatted", "codegen-full"] }
+godot = { git = "https://github.com/godot-rust/gdext", rev = "780a62a5e82098571215e0b8cebc51cf50e47944", default-features = false, features = ["formatted", "codegen-full"] }
 # godot = { path = "/home/fabian/git/_ext/gdextension/godot", features = ["formatted", "codegen-full", "trace"] }
 # godot = { path = "/home/fabian/git/_ext/gdextension/godot", features = ["formatted", "codegen-full"] }
 rand = "0.8"

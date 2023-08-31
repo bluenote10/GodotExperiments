@@ -109,16 +109,14 @@ impl SimpleItemList {
             return;
         }
         godot_print!("check_shape_changed");
-        //self.scroll_bar.hide();
 
         let size = self.base.get_size();
         let height = size.y;
 
         let virtual_height = self.item_height * self.items.len() as i32;
 
+        self.scroll_bar.set_max(virtual_height as f64);
         self.scroll_bar.set_page(height as f64);
-        self.scroll_bar
-            .set_max(virtual_height as f64 - height as f64);
 
         self.shape_check_required = false;
     }

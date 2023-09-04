@@ -110,6 +110,11 @@ impl SimpleItemList {
         }
         godot_print!("check_shape_changed");
 
+        self.scroll_bar.disconnect(
+            "value_changed".into(),
+            self.base.callable("on_scroll_changed"),
+        );
+
         let size = self.base.get_size();
         let height = size.y;
 
@@ -119,6 +124,11 @@ impl SimpleItemList {
         self.scroll_bar.set_page(height as f64);
 
         self.shape_check_required = false;
+
+        self.scroll_bar.connect(
+            "value_changed".into(),
+            self.base.callable("on_scroll_changed"),
+        );
     }
 
     fn draw_contents(&mut self) {

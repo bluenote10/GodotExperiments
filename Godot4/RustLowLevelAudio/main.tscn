@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cb4eqnjepmw6q"]
+
+[node name="TreeRoot" type="TreeRoot"]
+anchors_preset = 15
+offset_right = 40.0
+offset_bottom = 40.0

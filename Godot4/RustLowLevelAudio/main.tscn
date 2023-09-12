@@ -1,5 +1,3 @@
 [gd_scene format=3 uid="uid://cb4eqnjepmw6q"]
 
-[node name="TreeRoot" type="TreeRoot"]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="TreeRoot" type="DemoV1"]

@@ -12,20 +12,20 @@ const MIN_CAPACITY: usize = 512 * 4;
 
 #[derive(GodotClass)]
 #[class(base=AudioStream)]
-pub struct CustomAudioStream {
+pub struct CustomAudioStreamV1 {
     capacity: usize,
 }
 
 #[godot_api]
-impl AudioStreamVirtual for CustomAudioStream {
+impl AudioStreamVirtual for CustomAudioStreamV1 {
     fn init(_base: Base<Self::Base>) -> Self {
         Self { capacity: 128 }
     }
 
     fn instantiate_playback(&self) -> Option<Gd<AudioStreamPlayback>> {
         Some(
-            Gd::<CustomAudioStreamPlayback>::with_base(|_base| {
-                CustomAudioStreamPlayback::new(self.capacity.max(MIN_CAPACITY))
+            Gd::<CustomAudioStreamPlaybackV1>::with_base(|_base| {
+                CustomAudioStreamPlaybackV1::new(self.capacity.max(MIN_CAPACITY))
             })
             .upcast(),
         )
@@ -34,13 +34,13 @@ impl AudioStreamVirtual for CustomAudioStream {
 
 #[derive(GodotClass)]
 #[class(base=AudioStreamPlayback)]
-pub struct CustomAudioStreamPlayback {
+pub struct CustomAudioStreamPlaybackV1 {
     ring_buffer: HeapRb<WrappedAudioFrame>,
     local_buffer: Vec<WrappedAudioFrame>,
 }
 
 #[godot_api]
-impl AudioStreamPlaybackVirtual for CustomAudioStreamPlayback {
+impl AudioStreamPlaybackVirtual for CustomAudioStreamPlaybackV1 {
     /*
     unsafe fn mix(&mut self, buffer: *mut AudioFrame, _rate_scale: f32, frames: i32) -> i32 {
         for i in 0..frames {
@@ -97,7 +97,7 @@ impl AudioStreamPlaybackVirtual for CustomAudioStreamPlayback {
     }
 }
 
-impl CustomAudioStreamPlayback {
+impl CustomAudioStreamPlaybackV1 {
     fn new(capacity: usize) -> Self {
         let buffer = HeapRb::new(capacity);
         Self {

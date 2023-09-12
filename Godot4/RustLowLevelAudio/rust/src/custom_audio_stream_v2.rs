@@ -1,68 +1,78 @@
+use std::cell::RefCell;
+use std::mem::MaybeUninit;
+use std::sync::Arc;
+
 use godot::engine::native::AudioFrame;
 use godot::engine::{AudioStreamPlayback, AudioStreamPlaybackVirtual, AudioStreamVirtual, Os};
 use godot::prelude::*;
-use ringbuf::ring_buffer::RbBase;
-use ringbuf::{HeapRb, Rb};
+use ringbuf::{Consumer, Producer, SharedRb};
 
-/// I think we cannot just use the specified capacity, because it also depends
-/// on the buffer size Godot is using internally for the audio server (which
-/// is hardcode to 512). And it is perhaps wise to allow for multiples of that
-/// in case things get delayed?
-const MIN_CAPACITY: usize = 512 * 4;
+pub type AudioProducer = Producer<
+    WrappedAudioFrame,
+    Arc<SharedRb<WrappedAudioFrame, Vec<MaybeUninit<WrappedAudioFrame>>>>,
+>;
+pub type AudioConsumer = Consumer<
+    WrappedAudioFrame,
+    Arc<SharedRb<WrappedAudioFrame, Vec<MaybeUninit<WrappedAudioFrame>>>>,
+>;
+
+// ----------------------------------------------------------------------------
+// CustomAudioStream
+// ----------------------------------------------------------------------------
 
 #[derive(GodotClass)]
 #[class(base=AudioStream)]
 pub struct CustomAudioStream {
-    capacity: usize,
+    consumer: RefCell<Option<AudioConsumer>>,
 }
 
 #[godot_api]
 impl AudioStreamVirtual for CustomAudioStream {
-    fn init(_base: Base<Self::Base>) -> Self {
-        Self { capacity: 128 }
-    }
-
     fn instantiate_playback(&self) -> Option<Gd<AudioStreamPlayback>> {
-        Some(
-            Gd::<CustomAudioStreamPlayback>::with_base(|_base| {
-                CustomAudioStreamPlayback::new(self.capacity.max(MIN_CAPACITY))
-            })
-            .upcast(),
-        )
+        // Since instantiate_playback doesn't allow for &mut self we need interior mutability here.
+        let consumer = self.consumer.borrow_mut().take();
+        if let Some(consumer) = consumer {
+            Some(
+                Gd::<CustomAudioStreamPlayback>::with_base(|_base| {
+                    CustomAudioStreamPlayback::new(consumer)
+                })
+                .upcast(),
+            )
+        } else {
+            godot_warn!("Tried to instantiate playback, but consumer has already been consumed.");
+            None
+        }
     }
 }
+
+impl CustomAudioStream {
+    pub fn new(consumer: AudioConsumer) -> Self {
+        Self {
+            consumer: RefCell::new(Some(consumer)),
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+// CustomAudioStreamPlayback
+// ----------------------------------------------------------------------------
 
 #[derive(GodotClass)]
 #[class(base=AudioStreamPlayback)]
 pub struct CustomAudioStreamPlayback {
-    ring_buffer: HeapRb<WrappedAudioFrame>,
+    consumer: AudioConsumer,
     local_buffer: Vec<WrappedAudioFrame>,
 }
 
 #[godot_api]
 impl AudioStreamPlaybackVirtual for CustomAudioStreamPlayback {
-    /*
-    unsafe fn mix(&mut self, buffer: *mut AudioFrame, _rate_scale: f32, frames: i32) -> i32 {
-        for i in 0..frames {
-            let value = 0.5
-                * (2.0 * std::f32::consts::PI * 440.0 * self.num_samples as f32 / 44100.0).sin();
-            *buffer.offset(i as isize) = AudioFrame {
-                left: value,
-                right: value,
-            };
-            self.num_samples += 1
-        }
-        frames
-    }
-    */
-
     unsafe fn mix(
         &mut self,
         buffer: *mut AudioFrame,
         _rate_scale: f32,
         num_requested_frames: i32,
     ) -> i32 {
-        let num_available = self.ring_buffer.occupied_len();
+        let num_available = self.consumer.len();
         let num_to_read = num_available.min(num_requested_frames as usize);
         godot_print!("[{:08}] reading {num_to_read} frames (available: {num_available}, requested: {num_requested_frames})", Os::singleton().get_thread_caller_id());
         self.local_buffer.resize(
@@ -72,7 +82,8 @@ impl AudioStreamPlaybackVirtual for CustomAudioStreamPlayback {
                 right: 0.0,
             },
         );
-        self.ring_buffer.pop_slice(&mut self.local_buffer);
+
+        self.consumer.pop_slice(&mut self.local_buffer);
 
         let mut i = 0;
         for frame in &self.local_buffer {
@@ -98,25 +109,12 @@ impl AudioStreamPlaybackVirtual for CustomAudioStreamPlayback {
 }
 
 impl CustomAudioStreamPlayback {
-    fn new(capacity: usize) -> Self {
-        let buffer = HeapRb::new(capacity);
+    fn new(consumer: AudioConsumer) -> Self {
+        let capacity = consumer.capacity();
         Self {
-            ring_buffer: buffer,
+            consumer,
             local_buffer: Vec::with_capacity(capacity),
         }
-    }
-
-    pub fn get_frames_available(&self) -> usize {
-        self.ring_buffer.free_len()
-    }
-
-    pub fn push_buffer(&mut self, frames: &[WrappedAudioFrame]) {
-        godot_print!(
-            "[{:08}] pushing {} frames",
-            Os::singleton().get_thread_caller_id(),
-            frames.len()
-        );
-        self.ring_buffer.push_slice_overwrite(frames);
     }
 }
 
@@ -136,6 +134,10 @@ impl From<WrappedAudioFrame> for AudioFrame {
 }
 
 impl WrappedAudioFrame {
+    pub fn new(left: f32, right: f32) -> Self {
+        Self { left, right }
+    }
+
     pub fn to_audio_frame(&self) -> AudioFrame {
         (*self).into()
     }

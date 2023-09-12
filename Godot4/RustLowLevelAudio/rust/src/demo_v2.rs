@@ -1,17 +1,19 @@
 use godot::engine::{ControlVirtual, Os};
 use godot::prelude::*;
+use ringbuf::HeapRb;
 
-use super::custom_audio_stream_v1::{
-    CustomAudioStream, CustomAudioStreamPlayback, WrappedAudioFrame,
-};
+use super::custom_audio_stream_v2::{AudioProducer, CustomAudioStream, WrappedAudioFrame};
 
 #[derive(GodotClass)]
 #[class(base=Control)]
 pub struct DemoV2 {
     #[base]
     audio_player: Gd<AudioStreamPlayer>,
+    producer: AudioProducer,
     num_samples: usize,
 }
+
+const RING_BUF_SIZE: usize = 1024;
 
 #[godot_api]
 impl ControlVirtual for DemoV2 {
@@ -23,7 +25,11 @@ impl ControlVirtual for DemoV2 {
             Os::singleton().get_thread_caller_id()
         );
 
-        let custom_audio_stream = Gd::<CustomAudioStream>::new_default();
+        let buffer: HeapRb<WrappedAudioFrame> = HeapRb::new(RING_BUF_SIZE);
+        let (producer, consumer) = buffer.split();
+
+        let custom_audio_stream =
+            Gd::<CustomAudioStream>::with_base(|_| CustomAudioStream::new(consumer));
 
         let mut audio_player = AudioStreamPlayer::new_alloc();
         audio_player.set_stream(custom_audio_stream.upcast());
@@ -31,23 +37,20 @@ impl ControlVirtual for DemoV2 {
 
         Self {
             audio_player,
+            producer,
             num_samples: 0,
         }
     }
 
     fn ready(&mut self) {
+        // Play can only be called once the node is in the scene tree. This will internally
+        // call `instantiate_playback`. Therefore we must never call `.play()` again, because
+        // the consumer will be consumed internally.
         self.audio_player.play();
     }
 
     fn process(&mut self, _delta: f64) {
-        let mut audio_stream_playback_gd = self
-            .audio_player
-            .get_stream_playback()
-            .unwrap()
-            .cast::<CustomAudioStreamPlayback>();
-        let mut audio_stream_playback = audio_stream_playback_gd.bind_mut();
-
-        let frames_available = audio_stream_playback.get_frames_available();
+        let frames_available = self.producer.free_len();
         godot_print!(
             "[{:08}] frames_available: {frames_available}",
             Os::singleton().get_thread_caller_id()
@@ -60,13 +63,10 @@ impl ControlVirtual for DemoV2 {
                         * (2.0 * std::f32::consts::PI * 440.0 * self.num_samples as f32 / 44100.0)
                             .sin();
                     self.num_samples += 1;
-                    WrappedAudioFrame {
-                        left: value,
-                        right: value,
-                    }
+                    WrappedAudioFrame::new(value, value)
                 })
                 .collect();
-            audio_stream_playback.push_buffer(&frames);
+            self.producer.push_slice(&frames);
         }
     }
 }

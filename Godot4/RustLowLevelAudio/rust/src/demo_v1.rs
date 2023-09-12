@@ -2,7 +2,7 @@ use godot::engine::{ControlVirtual, Os};
 use godot::prelude::*;
 
 use super::custom_audio_stream_v1::{
-    CustomAudioStream, CustomAudioStreamPlayback, WrappedAudioFrame,
+    CustomAudioStreamPlaybackV1, CustomAudioStreamV1, WrappedAudioFrame,
 };
 
 #[derive(GodotClass)]
@@ -23,7 +23,7 @@ impl ControlVirtual for DemoV1 {
             Os::singleton().get_thread_caller_id()
         );
 
-        let custom_audio_stream = Gd::<CustomAudioStream>::new_default();
+        let custom_audio_stream = Gd::<CustomAudioStreamV1>::new_default();
 
         let mut audio_player = AudioStreamPlayer::new_alloc();
         audio_player.set_stream(custom_audio_stream.upcast());
@@ -44,7 +44,7 @@ impl ControlVirtual for DemoV1 {
             .audio_player
             .get_stream_playback()
             .unwrap()
-            .cast::<CustomAudioStreamPlayback>();
+            .cast::<CustomAudioStreamPlaybackV1>();
         let mut audio_stream_playback = audio_stream_playback_gd.bind_mut();
 
         let frames_available = audio_stream_playback.get_frames_available();

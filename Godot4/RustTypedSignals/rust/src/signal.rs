@@ -4,7 +4,7 @@ pub struct Signal<A>
 where
     A: Clone,
 {
-    callbacks: Vec<Box<dyn FnMut(A)>>,
+    callbacks: Vec<Box<dyn Fn(A)>>,
 }
 
 impl<A> Signal<A>
@@ -17,17 +17,15 @@ where
         }
     }
 
-    pub fn connect<T>(&mut self, mut callback: Callback<T, A>)
+    pub fn connect<T>(&mut self, callback: Callback<T, A>)
     where
         T: GodotClass,
     {
-        // let wrapped_callback = |a: A| { callback.func()}
-
         self.callbacks.push(Box::new(move |a: A| callback.call(a)));
     }
 
-    pub fn emit(&mut self, args: A) {
-        for callback in &mut self.callbacks {
+    pub fn emit(&self, args: A) {
+        for callback in &self.callbacks {
             callback(args.clone());
         }
     }
@@ -39,7 +37,7 @@ where
     A: Clone,
 {
     node: Gd<T>,
-    func: Box<dyn FnMut(Gd<T>, A)>,
+    func: Box<dyn Fn(Gd<T>, A)>,
 }
 
 impl<T, A> Callback<T, A>
@@ -47,14 +45,14 @@ where
     T: GodotClass,
     A: Clone + 'static,
 {
-    pub fn new(node: Gd<T>, func: impl FnMut(Gd<T>, A) + 'static) -> Self {
+    pub fn new(node: Gd<T>, func: impl Fn(Gd<T>, A) + 'static) -> Self {
         Callback {
             node,
             func: Box::new(func),
         }
     }
 
-    fn call(&mut self, a: A) {
+    fn call(&self, a: A) {
         if self.node.is_instance_valid() {
             (self.func)(self.node.share(), a)
         }

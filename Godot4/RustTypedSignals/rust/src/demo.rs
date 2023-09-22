@@ -22,6 +22,8 @@ impl ControlVirtual for TreeRoot {
         let child = Gd::<Child>::new_default();
         base.add_child(child.share().upcast());
 
+        /*
+        // This is how it looks with explicit casting:
         child
             .share()
             .bind_mut()
@@ -32,6 +34,18 @@ impl ControlVirtual for TreeRoot {
                 let mut this = node.bind_mut();
                 this.counter += 1;
                 godot_print!("counter (binding 1): {}", this.counter);
+            }));
+        */
+
+        child
+            .share()
+            .bind_mut()
+            .click_signal
+            .connect(Callback::with_cast::<Self>(base.share(), |mut this, i| {
+                godot_print!("{this:?} {i}");
+                let mut _self = this.bind_mut();
+                _self.counter += 1;
+                godot_print!("counter (binding 1): {}", _self.counter);
             }));
 
         Self {
@@ -48,9 +62,9 @@ impl ControlVirtual for TreeRoot {
             .connect(Callback::new(self.base.share(), |node, i| {
                 let mut node = node.share().cast::<Self>();
                 godot_print!("{node:?} {i}");
-                let mut this = node.bind_mut();
-                this.counter += 1;
-                godot_print!("counter (binding 2): {}", this.counter);
+                let mut _self = node.bind_mut();
+                _self.counter += 1;
+                godot_print!("counter (binding 2): {}", _self.counter);
             }))
     }
 }

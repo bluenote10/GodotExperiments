@@ -1,0 +1,43 @@
+<?xml version="1.0" standalone="no"?>
+<svg
+  width="100%"
+  height="100%"
+  viewBox="0 0 {{height + padding * 2}} {{width + padding * 2}}"
+  preserveAspectRatio="xMidYMid meet"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <text
+    x="{{width/2 + padding}}"
+    y="{{padding / 2}}"
+    font-family="-apple-system, system-ui, BlinkMacSystemFont, Roboto"
+    dominant-baseline="middle"
+    text-anchor="middle"
+    font-size="18"
+    fill="#74838f"
+    font-weight="700"
+  >
+    {{name}}
+  </text>
+
+  <defs>
+    <filter id="shadow">
+      <feDropShadow dx="0.2" dy="0.4" stdDeviation="0.2" />
+    </filter>
+    <filter id="shadow2">
+      <feDropShadow dx="0" dy="0" stdDeviation="0.5" flood-color="cyan" />
+    </filter>
+    <filter id="shadow3">
+      <feDropShadow
+        dx="-0.8"
+        dy="-0.8"
+        stdDeviation="0"
+        flood-color="pink"
+        flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <circle cx="5" cy="50%" r="4" style="fill:pink; filter:url(#shadow);" />
+  <circle cx="15" cy="50%" r="4" style="fill:pink; filter:url(#shadow2);" />
+  <circle cx="25" cy="50%" r="4" style="fill:pink; filter:url(#shadow3);" />
+
+</svg>

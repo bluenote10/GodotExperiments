@@ -1,0 +1,16 @@
+{% macro rect(w, h, rx) %}
+  <rect x="50" y="50" width="{{ w }}" height="{{ h }}" rx="{{ rx }}" />
+{% endmacro rect %}
+
+{% macro drop_shadow(filter_name, dx, dy, std, flood_color, flood_opacity, extension=10) %}
+  <filter id="{{ filter_name }}" x="-{{ extension }}%" y="-{{ extension }}%" width="{{ 100 + 2*extension }}%" height="{{ 100 + 2*extension }}%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="{{ std }}"/>
+    <feOffset dx="{{ dx }}" dy="{{ dy }}" result="offsetblur"/>
+    <feFlood flood-color="{{ flood_color }}" flood-opacity="{{ flood_opacity }}"/>
+    <feComposite in2="offsetblur" operator="in"/>
+    <feMerge>
+      <feMergeNode/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+{% endmacro drop_shadow %}

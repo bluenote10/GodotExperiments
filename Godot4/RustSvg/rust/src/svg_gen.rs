@@ -16,6 +16,9 @@ fn get_templates() -> &'static Tera {
         // https://stackoverflow.com/questions/57760236/why-cant-my-rust-code-load-a-tera-template
         // https://docs.rs/tera/latest/tera/struct.Tera.html#method.add_raw_template
         let mut tera = Tera::default();
+
+        tera.add_raw_template("macros.svg", include_str!("svgs/macros.svg"))
+            .unwrap();
         tera.add_raw_template("button.svg", include_str!("svgs/button.svg"))
             .unwrap();
         tera

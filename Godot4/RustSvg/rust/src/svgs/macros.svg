@@ -3,7 +3,14 @@
 {% endmacro rect %}
 
 {% macro drop_shadow(filter_name, dx, dy, std, flood_color, flood_opacity, extension=10) %}
-  <filter id="{{ filter_name }}" x="-{{ extension }}%" y="-{{ extension }}%" width="{{ 100 + 2*extension }}%" height="{{ 100 + 2*extension }}%">
+  <filter
+    id="{{ filter_name }}"
+    x="-{{ extension }}%"
+    y="-{{ extension }}%"
+    width="{{ 100 + 2*extension }}%"
+    height="{{ 100 + 2*extension }}%"
+    color-interpolation-filters="sRGB"
+  >
     <feGaussianBlur in="SourceAlpha" stdDeviation="{{ std }}"/>
     <feOffset dx="{{ dx }}" dy="{{ dy }}" result="offsetblur"/>
     <feFlood flood-color="{{ flood_color }}" flood-opacity="{{ flood_opacity }}"/>
@@ -13,4 +20,11 @@
       <feMergeNode in="SourceGraphic"/>
     </feMerge>
   </filter>
+{% endmacro drop_shadow %}
+
+
+{% macro shift_and_scale_centered(dx, dy, scale, w, h) %}
+  {% set w_half = w / 2 %}
+  {% set h_half = h / 2 %}
+  translate({{ dx }} {{ dy }}) translate({{ w_half }} {{ h_half }}) scale({{ scale }}) translate(-{{ w_half }} -{{ h_half }})
 {% endmacro drop_shadow %}

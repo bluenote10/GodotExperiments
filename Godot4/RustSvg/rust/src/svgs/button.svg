@@ -3,7 +3,7 @@
 <svg
   width="100%"
   height="100%"
-  viewBox="0 0 {{ height + padding * 2 }} {{ width + padding * 2 }}"
+  viewBox="0 0 {{ height }} {{ width }}"
   preserveAspectRatio="xMidYMid meet"
   xmlns="http://www.w3.org/2000/svg"
 >
@@ -16,7 +16,7 @@
         dy=-4,
         std=5,
         flood_color="#FFF",
-        flood_opacity=0.05,
+        flood_opacity=0.1,
         extension=100,
       )
     }}
@@ -27,7 +27,7 @@
         dy=-1,
         std=1,
         flood_color="#FFF",
-        flood_opacity=0.07,
+        flood_opacity=0.2,
         extension=100,
       )
     }}
@@ -38,7 +38,7 @@
         dy=4,
         std=5,
         flood_color="#000",
-        flood_opacity=0.5,
+        flood_opacity=0.4,
         extension=100,
       )
     }}
@@ -55,8 +55,19 @@
     }}
   </defs>
 
+  <!--
   <rect x="0" y="0" width="100%" height="100%" style="fill:#444; stroke=black; stroke-width:1px;" />
+  -->
 
-  <rect x="50%" y="50%" width="30" height="30" rx="5" style="fill:#444; filter:url(#glow1) url(#glow2) url(#shadow1) url(#shadow2);" />
-
+  <rect
+    x="{{ padding }}"
+    y="{{ padding }}"
+    width="{{ width - 2*padding }}"
+    height="{{ width - 2*padding }}"
+    rx="5"
+    style="fill:#444; filter:url(#glow1) url(#glow2) url(#shadow1) url(#shadow2);"
+  />
+  <g transform="translate(40 40) scale(0.05)">
+{% include "play.svg" %}
+  </g>
 </svg>

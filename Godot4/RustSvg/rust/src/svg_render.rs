@@ -3,7 +3,7 @@ use std::fs;
 use godot::engine::Image;
 use godot::prelude::*;
 use resvg::tiny_skia::{Pixmap, Transform};
-use resvg::usvg::{self, TreeParsing};
+use resvg::usvg::{self, TreeParsing, TreeWriting, XmlOptions};
 
 fn write_debug_output(filename: &str, content: &[u8]) {
     let temp_dir = std::env::temp_dir().join("debug_svg_out");
@@ -16,6 +16,11 @@ pub fn render_svg(svg: &str) -> Gd<Image> {
     let options = usvg::Options::default();
     let svg_tree = usvg::Tree::from_str(svg, &options).expect("Failed to parse svg");
 
+    let show_parsed_tree = false;
+    if show_parsed_tree {
+        println!("{}", svg_tree.to_string(&XmlOptions::default()));
+    }
+
     let render_tree = resvg::Tree::from_usvg(&svg_tree);
 
     let mut pixmap =
@@ -23,7 +28,6 @@ pub fn render_svg(svg: &str) -> Gd<Image> {
     render_tree.render(Transform::identity(), &mut pixmap.as_mut());
 
     let png_data = pixmap.encode_png().expect("Failed to convert to png");
-    println!("{}", png_data.len());
 
     write_debug_output("button.png", &png_data);
 

@@ -19,6 +19,8 @@ fn get_templates() -> &'static Tera {
 
         tera.add_raw_template("macros.svg", include_str!("svgs/macros.svg"))
             .unwrap();
+        tera.add_raw_template("play.svg", include_str!("svgs/play.svg"))
+            .unwrap();
         tera.add_raw_template("button.svg", include_str!("svgs/button.svg"))
             .unwrap();
         tera
@@ -40,7 +42,7 @@ fn get_svg(filename: &str, context: &Context) -> String {
         .expect("Failed to render template");
 
     write_debug_output(filename, &svg);
-    println!("{}", svg);
+    // println!("{}", svg);
 
     svg
 }
@@ -49,7 +51,7 @@ pub fn get_svg_button() -> String {
     let mut context = Context::new();
     context.insert("width", &100);
     context.insert("height", &100);
-    context.insert("padding", &10);
+    context.insert("padding", &30);
     context.insert("name", "Hello World");
     get_svg("button.svg", &context)
 }

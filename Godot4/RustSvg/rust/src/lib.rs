@@ -1,4 +1,5 @@
 mod svg_gen;
+mod svg_gen_rust;
 mod svg_render;
 
 use godot::engine::control::LayoutPreset;

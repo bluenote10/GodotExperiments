@@ -1,0 +1,11 @@
+[package]
+name = "gdext-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+godot = { git = "https://github.com/godot-rust/gdext", rev = "e3644a0348b4d6fe952007cebd94d1d3f5ddfd86", default-features = false, features = ["formatted", "codegen-full"] }

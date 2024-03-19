@@ -2,7 +2,8 @@ use std::cell::{Cell, RefCell};
 use std::fmt::Debug;
 use std::rc::Rc;
 
-//#[derive(Clone)]
+// Deriving clone doesn't seem to work in this case, see: https://github.com/rust-lang/rust/issues/122750
+// #[derive(Clone)]
 pub struct Dynamic<T>
 where
     T: Debug,
@@ -11,9 +12,14 @@ where
     value_id: Rc<Cell<u64>>,
 }
 
+// Perhaps use `trait-set`?
+// https://stackoverflow.com/a/70297552/1804173
+pub trait CommonBound: Debug + PartialEq {}
+impl<T: Debug + PartialEq> CommonBound for T {}
+
 impl<T> Clone for Dynamic<T>
 where
-    T: Debug,
+    T: CommonBound,
 {
     fn clone(&self) -> Self {
         Self {
@@ -25,7 +31,7 @@ where
 
 impl<T> Dynamic<T>
 where
-    T: Debug,
+    T: CommonBound,
 {
     pub fn new(x: T) -> Self {
         Self {
@@ -34,12 +40,33 @@ where
         }
     }
 
-    pub fn update(&self, update: impl FnOnce(&T) -> T) {
+    pub fn set(&self, y: T) {
+        self.value.replace(y);
+        self.value_id.set(self.value_id.get() + 1);
+        println!(
+            "Set value to {:?}, value count: {:?}",
+            self.value, self.value_id
+        );
+    }
+
+    pub fn update(&self, f: impl FnOnce(&T) -> T) {
         let y = {
             let x = self.value.borrow();
-            update(&x)
+            f(&x)
         };
         self.value.replace(y);
+        self.value_id.set(self.value_id.get() + 1);
+        println!(
+            "Set value to {:?}, value count: {:?}",
+            self.value, self.value_id
+        );
+    }
+
+    pub fn update_inplace(&self, f: impl FnOnce(&mut T)) {
+        {
+            let mut x = self.value.borrow_mut();
+            f(&mut x)
+        };
         self.value_id.set(self.value_id.get() + 1);
         println!(
             "Set value to {:?}, value count: {:?}",
@@ -54,7 +81,7 @@ where
 
 pub struct Consumer<T>
 where
-    T: Debug,
+    T: CommonBound,
 {
     dynamic: Dynamic<T>,
     consumed_id: Cell<u64>,
@@ -62,7 +89,7 @@ where
 
 impl<T> Consumer<T>
 where
-    T: Debug,
+    T: CommonBound,
 {
     pub fn new(dynamic: Dynamic<T>) -> Self {
         Self {
@@ -97,8 +124,8 @@ impl<A, B> IntoConsumer for (A, B) {
 
 pub struct Consumer2<A, B>
 where
-    A: Debug,
-    B: Debug,
+    A: CommonBound,
+    B: CommonBound,
 {
     dynamics: (Dynamic<A>, Dynamic<B>),
     consumed_ids: Cell<(u64, u64)>,
@@ -106,8 +133,8 @@ where
 
 impl<A, B> Consumer2<A, B>
 where
-    A: Debug,
-    B: Debug,
+    A: CommonBound,
+    B: CommonBound,
 {
     pub fn new(dynamics: (Dynamic<A>, Dynamic<B>)) -> Self {
         Self {
@@ -133,6 +160,39 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn basics() {
+        let dynamic_a = Dynamic::new(0);
+        let dynamic_b = dynamic_a.clone();
+        {
+            assert_eq!(*dynamic_a.value.borrow(), 0);
+            assert_eq!(*dynamic_b.value.borrow(), 0);
+            assert_eq!(dynamic_a.value_id.get(), 0);
+            assert_eq!(dynamic_b.value_id.get(), 0);
+        }
+        dynamic_a.set(10);
+        {
+            assert_eq!(*dynamic_a.value.borrow(), 10);
+            assert_eq!(*dynamic_b.value.borrow(), 10);
+            assert_eq!(dynamic_a.value_id.get(), 1);
+            assert_eq!(dynamic_b.value_id.get(), 1);
+        }
+        dynamic_a.update(|x| x * 2);
+        {
+            assert_eq!(*dynamic_a.value.borrow(), 20);
+            assert_eq!(*dynamic_b.value.borrow(), 20);
+            assert_eq!(dynamic_a.value_id.get(), 2);
+            assert_eq!(dynamic_b.value_id.get(), 2);
+        }
+        dynamic_a.update_inplace(|x| *x = 30);
+        {
+            assert_eq!(*dynamic_a.value.borrow(), 30);
+            assert_eq!(*dynamic_b.value.borrow(), 30);
+            assert_eq!(dynamic_a.value_id.get(), 3);
+            assert_eq!(dynamic_b.value_id.get(), 3);
+        }
+    }
 
     #[test]
     fn two_dynamics() {

@@ -41,37 +41,46 @@ where
     }
 
     pub fn set(&self, y: T) {
-        self.value.replace(y);
-        self.value_id.set(self.value_id.get() + 1);
-        println!(
-            "Set value to {:?}, value count: {:?}",
-            self.value, self.value_id
-        );
+        let has_changed = { *self.value.borrow() != y };
+        if has_changed {
+            self.value.replace(y);
+            self.value_id.set(self.value_id.get() + 1);
+            println!(
+                "Set value to {:?}, value count: {:?}",
+                self.value, self.value_id
+            );
+        }
     }
 
     pub fn update(&self, f: impl FnOnce(&T) -> T) {
-        let y = {
+        let (y, has_changed) = {
             let x = self.value.borrow();
-            f(&x)
+            let y = f(&x);
+            let has_changed = *x != y;
+            (y, has_changed)
         };
-        self.value.replace(y);
-        self.value_id.set(self.value_id.get() + 1);
-        println!(
-            "Set value to {:?}, value count: {:?}",
-            self.value, self.value_id
-        );
+        if has_changed {
+            self.value.replace(y);
+            self.value_id.set(self.value_id.get() + 1);
+            println!(
+                "Set value to {:?}, value count: {:?}",
+                self.value, self.value_id
+            );
+        }
     }
 
-    pub fn update_inplace(&self, f: impl FnOnce(&mut T)) {
-        {
+    pub fn update_inplace(&self, f: impl FnOnce(&mut T) -> bool) {
+        let has_changed = {
             let mut x = self.value.borrow_mut();
             f(&mut x)
         };
-        self.value_id.set(self.value_id.get() + 1);
-        println!(
-            "Set value to {:?}, value count: {:?}",
-            self.value, self.value_id
-        );
+        if has_changed {
+            self.value_id.set(self.value_id.get() + 1);
+            println!(
+                "Set value to {:?}, value count: {:?}",
+                self.value, self.value_id
+            );
+        }
     }
 
     pub fn into_consumer(&self) -> Consumer<T> {
@@ -171,6 +180,7 @@ mod tests {
             assert_eq!(dynamic_a.value_id.get(), 0);
             assert_eq!(dynamic_b.value_id.get(), 0);
         }
+
         dynamic_a.set(10);
         {
             assert_eq!(*dynamic_a.value.borrow(), 10);
@@ -178,6 +188,14 @@ mod tests {
             assert_eq!(dynamic_a.value_id.get(), 1);
             assert_eq!(dynamic_b.value_id.get(), 1);
         }
+        dynamic_a.set(10);
+        {
+            assert_eq!(*dynamic_a.value.borrow(), 10);
+            assert_eq!(*dynamic_b.value.borrow(), 10);
+            assert_eq!(dynamic_a.value_id.get(), 1);
+            assert_eq!(dynamic_b.value_id.get(), 1);
+        }
+
         dynamic_a.update(|x| x * 2);
         {
             assert_eq!(*dynamic_a.value.borrow(), 20);
@@ -185,7 +203,25 @@ mod tests {
             assert_eq!(dynamic_a.value_id.get(), 2);
             assert_eq!(dynamic_b.value_id.get(), 2);
         }
-        dynamic_a.update_inplace(|x| *x = 30);
+        dynamic_a.update(|x| *x);
+        {
+            assert_eq!(*dynamic_a.value.borrow(), 20);
+            assert_eq!(*dynamic_b.value.borrow(), 20);
+            assert_eq!(dynamic_a.value_id.get(), 2);
+            assert_eq!(dynamic_b.value_id.get(), 2);
+        }
+
+        dynamic_a.update_inplace(|x| {
+            *x = 30;
+            true
+        });
+        {
+            assert_eq!(*dynamic_a.value.borrow(), 30);
+            assert_eq!(*dynamic_b.value.borrow(), 30);
+            assert_eq!(dynamic_a.value_id.get(), 3);
+            assert_eq!(dynamic_b.value_id.get(), 3);
+        }
+        dynamic_a.update_inplace(|_x| false);
         {
             assert_eq!(*dynamic_a.value.borrow(), 30);
             assert_eq!(*dynamic_b.value.borrow(), 30);
@@ -213,31 +249,62 @@ mod tests {
             (res_a, res_b, res_ab)
         };
 
+        // Initial poll
         let (res_a, res_b, res_ab) = poll();
         assert_eq!(res_a, Some(10));
         assert_eq!(res_b, Some(20));
         assert_eq!(res_ab, Some((10, 20)));
 
+        // Update a
         dynamic_a.update(|a| a + 1);
-
         let (res_a, res_b, res_ab) = poll();
         assert_eq!(res_a, Some(11));
         assert_eq!(res_b, None);
         assert_eq!(res_ab, Some((11, 20)));
 
+        // Update b
         dynamic_b.update(|b| b + 2);
-
         let (res_a, res_b, res_ab) = poll();
         assert_eq!(res_a, None);
         assert_eq!(res_b, Some(22));
         assert_eq!(res_ab, Some((11, 22)));
 
+        // Update both
         dynamic_a.update(|a| a + 10);
         dynamic_b.update(|b| b + 11);
-
         let (res_a, res_b, res_ab) = poll();
         assert_eq!(res_a, Some(21));
         assert_eq!(res_b, Some(33));
         assert_eq!(res_ab, Some((21, 33)));
+
+        // Reset
+        dynamic_a.set(10);
+        dynamic_b.set(20);
+        let (res_a, res_b, res_ab) = poll();
+        assert_eq!(res_a, Some(10));
+        assert_eq!(res_b, Some(20));
+        assert_eq!(res_ab, Some((10, 20)));
+
+        // No-op mutations
+        dynamic_a.set(10);
+        dynamic_b.set(20);
+        let (res_a, res_b, res_ab) = poll();
+        assert_eq!(res_a, None);
+        assert_eq!(res_b, None);
+        assert_eq!(res_ab, None);
+
+        dynamic_a.update(|x| *x);
+        dynamic_b.update(|x| *x);
+        let (res_a, res_b, res_ab) = poll();
+        assert_eq!(res_a, None);
+        assert_eq!(res_b, None);
+        assert_eq!(res_ab, None);
+
+        dynamic_a.update_inplace(|_x| false);
+        dynamic_b.update_inplace(|_x| false);
+        let (res_a, res_b, res_ab) = poll();
+        assert_eq!(res_a, None);
+        assert_eq!(res_b, None);
+        assert_eq!(res_ab, None);
     }
 }

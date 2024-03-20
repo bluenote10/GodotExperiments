@@ -88,6 +88,32 @@ where
     }
 }
 
+// Direct getters
+
+trait DirectGet<T> {
+    fn get(&self) -> T;
+}
+
+impl<T> DirectGet<T> for Dynamic<T>
+where
+    T: Clone + CommonBound,
+{
+    fn get(&self) -> T {
+        self.value.borrow().clone()
+    }
+}
+
+impl<T> DirectGet<T> for Consumer<T>
+where
+    T: Clone + CommonBound,
+{
+    fn get(&self) -> T {
+        self.dynamic.value.borrow().clone()
+    }
+}
+
+// Consumer
+
 pub struct Consumer<T>
 where
     T: CommonBound,
@@ -228,6 +254,43 @@ mod tests {
             assert_eq!(dynamic_a.value_id.get(), 3);
             assert_eq!(dynamic_b.value_id.get(), 3);
         }
+    }
+
+    #[test]
+    fn direct_get() {
+        let dynamic = Dynamic::new(42);
+        assert_eq!(dynamic.get(), 42);
+        let consumer = dynamic.into_consumer();
+        assert_eq!(consumer.get(), 42);
+
+        // Non-copy
+        #[derive(Clone, PartialEq, Debug)]
+        struct Foo(i32);
+
+        let dynamic = Dynamic::new(Foo(42));
+        assert_eq!(dynamic.get(), Foo(42));
+        let consumer = dynamic.into_consumer();
+        assert_eq!(consumer.get(), Foo(42));
+    }
+
+    #[test]
+    fn support_for_no_clone_no_copy() {
+        // Non-copy/clone
+        #[derive(PartialEq, Debug)]
+        struct Foo(i32);
+
+        let dynamic = Dynamic::new(Foo(42));
+        let consumer = dynamic.into_consumer();
+
+        let mut inner = 0;
+
+        consumer.on_change(|x| inner = x.0);
+        assert_eq!(inner, 42);
+
+        dynamic.update(|foo| Foo(foo.0 + 1));
+
+        consumer.on_change(|x| inner = x.0);
+        assert_eq!(inner, 43);
     }
 
     #[test]

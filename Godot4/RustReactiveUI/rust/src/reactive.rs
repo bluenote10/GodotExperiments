@@ -112,6 +112,14 @@ where
     }
 }
 
+// OnChange trait
+
+pub trait OnChange<'a, ArgType> {
+    fn on_change<F>(&'a self, f: F)
+    where
+        F: FnOnce(ArgType);
+}
+
 // Consumer
 
 pub struct Consumer<T>
@@ -142,6 +150,47 @@ where
         }
     }
 }
+
+/*
+impl<T> OnChange for Consumer<T>
+where
+    T: CommonBound,
+{
+    type ArgType<'a> = &'a T;
+
+    // fn on_change(&self, f: impl FnOnce(Self::ArgType<'a>)) {
+    fn on_change<F>(&self, f: F)
+    where
+        F: for<'a> FnOnce(Self::ArgType<'a>),
+    {
+        let value_id = self.dynamic.value_id.get();
+        // println!("{} {}", value_id, self.consumed_id.get());
+        if value_id != self.consumed_id.get() {
+            f(&self.dynamic.value.borrow());
+            self.consumed_id.set(value_id);
+        }
+    }
+}
+*/
+
+/*
+impl<'a, A> OnChange<'a, &'a A> for Consumer<A>
+where
+    A: CommonBound,
+{
+    fn on_change<F>(&'a self, f: F)
+    where
+        F: FnOnce(&'a A),
+    {
+        let value_id = self.dynamic.value_id.get();
+        // println!("{} {}", value_id, self.consumed_id.get());
+        if value_id != self.consumed_id.get() {
+            f(&self.dynamic.value.borrow());
+            self.consumed_id.set(value_id);
+        }
+    }
+}
+*/
 
 /*
 trait IntoConsumer {

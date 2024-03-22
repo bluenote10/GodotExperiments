@@ -1,5 +1,6 @@
 use std::cell::{Cell, RefCell};
 use std::fmt::Debug;
+use std::marker::PhantomData;
 use std::rc::Rc;
 
 // Deriving clone doesn't seem to work in this case, see: https://github.com/rust-lang/rust/issues/122750
@@ -112,15 +113,10 @@ where
     }
 }
 
-// OnChange trait
-
-pub trait OnChange<'a, ArgType> {
-    fn on_change<F>(&'a self, f: F)
-    where
-        F: FnOnce(ArgType);
-}
-
-// Consumer
+// Consumer<T>
+// Monitor<T>
+// React<T>
+// Signal<T>
 
 pub struct Consumer<T>
 where
@@ -141,6 +137,7 @@ where
         }
     }
 
+    /*
     pub fn on_change(&self, f: impl FnOnce(&T)) {
         let value_id = self.dynamic.value_id.get();
         // println!("{} {}", value_id, self.consumed_id.get());
@@ -149,20 +146,21 @@ where
             self.consumed_id.set(value_id);
         }
     }
+    */
 }
 
-/*
-impl<T> OnChange for Consumer<T>
-where
-    T: CommonBound,
-{
-    type ArgType<'a> = &'a T;
+// OnChange trait
 
-    // fn on_change(&self, f: impl FnOnce(Self::ArgType<'a>)) {
-    fn on_change<F>(&self, f: F)
-    where
-        F: for<'a> FnOnce(Self::ArgType<'a>),
-    {
+pub trait OnChange<F> {
+    fn on_change(&self, f: F);
+}
+
+impl<A, F> OnChange<F> for Consumer<A>
+where
+    A: CommonBound,
+    F: FnOnce(&A),
+{
+    fn on_change(&self, f: F) {
         let value_id = self.dynamic.value_id.get();
         // println!("{} {}", value_id, self.consumed_id.get());
         if value_id != self.consumed_id.get() {
@@ -171,22 +169,128 @@ where
         }
     }
 }
-*/
 
 /*
-impl<'a, A> OnChange<'a, &'a A> for Consumer<A>
+This compiles, but the solution isn't so great, because the resulting multi-consumer
+type names would become very long, because they have to repeat the `Consumer` type
+for each element of the tuple...
+
+impl<A, B, F> OnChange<F> for (Consumer<A>, Consumer<B>)
 where
     A: CommonBound,
+    B: CommonBound,
+    F: FnOnce((&A, &B)),
 {
-    fn on_change<F>(&'a self, f: F)
-    where
-        F: FnOnce(&'a A),
-    {
-        let value_id = self.dynamic.value_id.get();
+    fn on_change(&self, f: F) {
+        let value_id0 = self.0.dynamic.value_id.get();
+        let value_id1 = self.1.dynamic.value_id.get();
         // println!("{} {}", value_id, self.consumed_id.get());
-        if value_id != self.consumed_id.get() {
-            f(&self.dynamic.value.borrow());
-            self.consumed_id.set(value_id);
+        if value_id0 != self.0.consumed_id.get() || value_id1 != self.1.consumed_id.get() {
+            f((
+                &self.0.dynamic.value.borrow(),
+                &self.1.dynamic.value.borrow(),
+            ));
+            self.0.consumed_id.set(value_id0);
+            self.1.consumed_id.set(value_id1);
+        }
+    }
+}
+
+// Note that the issue in general is: Because we have implemented OnChange already for
+// Dynamic<A>, we are not allowed to specialize it for `Dynamic<(A, B)>` because A is
+// more generic than `(A, B)` (and already covers it).
+
+*/
+
+// Note that "overloading" a type alias with variadic generic is not allowed:
+// type Consumer<A, B> = (Consumer<A>, Consumer<B>);
+// type Consumer<A, B, C> = (Consumer<A>, Consumer<B>, Consumer<C>);
+// This would only work by disambiguating them with `Consumer2`, `Consumer3`, ...
+
+/*
+// The next idea was to get around the "`A` is more generic than `(A, B)`" by introducing
+// a special `MultiConsumer` type, which doesn't implement OnChange for a plain `A`.
+// However, when only using a single generic argument for the MultiConsumer, it would result
+// in very long type names like MultiConsumer<(Consumer<i32>, Consumer<i32>), because the
+// `Consumer` now have to be repeated inside the generic argument. Just writing MultiConsumer<(i32, i32)>
+// doesn't seem possible.
+
+struct MultiConsumer<T>(T);
+
+impl<A, F> OnChange<F> for MultiConsumer<(Consumer<A>,)>
+where
+    A: CommonBound,
+    F: FnOnce(&A),
+{
+    fn on_change(&self, f: F) {
+        let value_id = self.0 .0.dynamic.value_id.get();
+        // println!("{} {}", value_id, self.consumed_id.get());
+        if value_id != self.0 .0.consumed_id.get() {
+            f(&self.0 .0.dynamic.value.borrow());
+            self.0 .0.consumed_id.set(value_id);
+        }
+    }
+}
+
+impl<A, B, F> OnChange<F> for MultiConsumer<(Consumer<A>, Consumer<B>)>
+where
+    A: CommonBound,
+    B: CommonBound,
+    F: FnOnce((&A, &B)),
+{
+    fn on_change(&self, f: F) {
+        let value_id0 = self.0 .0.dynamic.value_id.get();
+        let value_id1 = self.0 .1.dynamic.value_id.get();
+        // println!("{} {}", value_id, self.consumed_id.get());
+        if value_id0 != self.0 .0.consumed_id.get() || value_id1 != self.0 .1.consumed_id.get() {
+            f((
+                &self.0 .0.dynamic.value.borrow(),
+                &self.0 .1.dynamic.value.borrow(),
+            ));
+            self.0 .0.consumed_id.set(value_id0);
+            self.0 .1.consumed_id.set(value_id1);
+        }
+    }
+}
+
+// This was another try, giving the MultiConsumer multiple generic argument. This "works", but
+// of course this made the entire type name just even longer: MultiConsumer<(i32, i32), (Consumer<i32>, Consumer<i32>)>
+// and repetitive.
+
+struct MultiConsumer<Arg, Storage>(Storage, PhantomData<Arg>);
+
+impl<A, F> OnChange<F> for MultiConsumer<(A,), (Consumer<A>,)>
+where
+    A: CommonBound,
+    F: FnOnce(&A),
+{
+    fn on_change(&self, f: F) {
+        let value_id = self.0 .0.dynamic.value_id.get();
+        // println!("{} {}", value_id, self.consumed_id.get());
+        if value_id != self.0 .0.consumed_id.get() {
+            f(&self.0 .0.dynamic.value.borrow());
+            self.0 .0.consumed_id.set(value_id);
+        }
+    }
+}
+
+impl<A, B, F> OnChange<F> for MultiConsumer<(A, B), (Consumer<A>, Consumer<B>)>
+where
+    A: CommonBound,
+    B: CommonBound,
+    F: FnOnce((&A, &B)),
+{
+    fn on_change(&self, f: F) {
+        let value_id0 = self.0 .0.dynamic.value_id.get();
+        let value_id1 = self.0 .1.dynamic.value_id.get();
+        // println!("{} {}", value_id, self.consumed_id.get());
+        if value_id0 != self.0 .0.consumed_id.get() || value_id1 != self.0 .1.consumed_id.get() {
+            f((
+                &self.0 .0.dynamic.value.borrow(),
+                &self.0 .1.dynamic.value.borrow(),
+            ));
+            self.0 .0.consumed_id.set(value_id0);
+            self.0 .1.consumed_id.set(value_id1);
         }
     }
 }
@@ -206,6 +310,9 @@ impl<A, B> IntoConsumer for (A, B) {
 }
 */
 
+/*
+// This was the first implementation of a Consumer2, without a trait, and using
+// a "transposed" representation of the dynamics/ids.
 pub struct Consumer2<A, B>
 where
     A: CommonBound,
@@ -237,6 +344,43 @@ where
                 &self.dynamics.1.value.borrow(),
             ));
             self.consumed_ids.set((value_id0, value_id1));
+        }
+    }
+}
+*/
+
+pub struct Consumer2<A, B>(Consumer<A>, Consumer<B>)
+where
+    A: CommonBound,
+    B: CommonBound;
+
+impl<A, B> Consumer2<A, B>
+where
+    A: CommonBound,
+    B: CommonBound,
+{
+    pub fn new(dynamics: (Dynamic<A>, Dynamic<B>)) -> Self {
+        Self(Consumer::new(dynamics.0), Consumer::new(dynamics.1))
+    }
+}
+
+impl<A, B, F> OnChange<F> for Consumer2<A, B>
+where
+    A: CommonBound,
+    B: CommonBound,
+    F: FnOnce((&A, &B)),
+{
+    fn on_change(&self, f: F) {
+        let value_id0 = self.0.dynamic.value_id.get();
+        let value_id1 = self.1.dynamic.value_id.get();
+        // println!("{} {}", value_id, self.consumed_id.get());
+        if value_id0 != self.0.consumed_id.get() || value_id1 != self.1.consumed_id.get() {
+            f((
+                &self.0.dynamic.value.borrow(),
+                &self.1.dynamic.value.borrow(),
+            ));
+            self.0.consumed_id.set(value_id0);
+            self.1.consumed_id.set(value_id1);
         }
     }
 }

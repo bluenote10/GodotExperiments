@@ -4,7 +4,7 @@ use godot::engine::control::LayoutPreset;
 use godot::engine::{Button, Control, IControl, Label, VBoxContainer};
 use godot::prelude::*;
 
-use reactive::{Consumer, Dynamic, OnChange};
+pub use reactive::{Consumer, Dynamic, IntoConsumer, OnChange};
 
 struct ExtensionImpl;
 

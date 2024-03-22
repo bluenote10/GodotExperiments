@@ -1,6 +1,5 @@
 use std::cell::{Cell, RefCell};
 use std::fmt::Debug;
-use std::marker::PhantomData;
 use std::rc::Rc;
 
 // Deriving clone doesn't seem to work in this case, see: https://github.com/rust-lang/rust/issues/122750
@@ -84,9 +83,11 @@ where
         }
     }
 
+    /*
     pub fn into_consumer(&self) -> Consumer<T> {
         Consumer::new(self.clone())
     }
+    */
 }
 
 // Direct getters
@@ -297,20 +298,6 @@ where
 */
 
 /*
-trait IntoConsumer {
-    type Output;
-    fn into_consumer(&self) -> Self::Output;
-}
-
-impl<A, B> IntoConsumer for (A, B) {
-    type Output = (A, B);
-    fn into_consumer(&self) -> Self::Output {
-        self
-    }
-}
-*/
-
-/*
 // This was the first implementation of a Consumer2, without a trait, and using
 // a "transposed" representation of the dynamics/ids.
 pub struct Consumer2<A, B>
@@ -373,7 +360,6 @@ where
     fn on_change(&self, f: F) {
         let value_id0 = self.0.dynamic.value_id.get();
         let value_id1 = self.1.dynamic.value_id.get();
-        // println!("{} {}", value_id, self.consumed_id.get());
         if value_id0 != self.0.consumed_id.get() || value_id1 != self.1.consumed_id.get() {
             f((
                 &self.0.dynamic.value.borrow(),
@@ -382,6 +368,118 @@ where
             self.0.consumed_id.set(value_id0);
             self.1.consumed_id.set(value_id1);
         }
+    }
+}
+
+pub struct Consumer3<A, B, C>(Consumer<A>, Consumer<B>, Consumer<C>)
+where
+    A: CommonBound,
+    B: CommonBound,
+    C: CommonBound;
+
+impl<A, B, C> Consumer3<A, B, C>
+where
+    A: CommonBound,
+    B: CommonBound,
+    C: CommonBound,
+{
+    pub fn new(dynamics: (Dynamic<A>, Dynamic<B>, Dynamic<C>)) -> Self {
+        Self(
+            Consumer::new(dynamics.0),
+            Consumer::new(dynamics.1),
+            Consumer::new(dynamics.2),
+        )
+    }
+}
+
+impl<A, B, C, F> OnChange<F> for Consumer3<A, B, C>
+where
+    A: CommonBound,
+    B: CommonBound,
+    C: CommonBound,
+    F: FnOnce((&A, &B, &C)),
+{
+    fn on_change(&self, f: F) {
+        let value_id0 = self.0.dynamic.value_id.get();
+        let value_id1 = self.1.dynamic.value_id.get();
+        let value_id2 = self.2.dynamic.value_id.get();
+        if value_id0 != self.0.consumed_id.get()
+            || value_id1 != self.1.consumed_id.get()
+            || value_id2 != self.2.consumed_id.get()
+        {
+            f((
+                &self.0.dynamic.value.borrow(),
+                &self.1.dynamic.value.borrow(),
+                &self.2.dynamic.value.borrow(),
+            ));
+            self.0.consumed_id.set(value_id0);
+            self.1.consumed_id.set(value_id1);
+            self.2.consumed_id.set(value_id2);
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------
+// IntoConsumer
+// ----------------------------------------------------------------------------
+
+/*
+trait IntoConsumer<Output> {
+    //type Output;
+    //fn into_consumer(&self) -> Self::Output;
+    fn into_consumer(&self) -> Output;
+}
+
+impl<A, B, DA, DB> IntoConsumer<Consumer2<A, B>> for (DA, DB)
+where
+    A: CommonBound,
+    B: CommonBound,
+    DA: AsRef<Dynamic<A>>,
+    DB: AsRef<Dynamic<B>>,
+{
+    //type Output = Consumer2<A, B>;
+    //fn into_consumer(&self) -> Self::Output {
+    fn into_consumer(&self) -> Consumer2<A, B> {
+        Consumer2::new((self.0.as_ref().clone(), self.1.as_ref().clone()))
+    }
+}
+*/
+
+pub trait IntoConsumer {
+    type Output;
+    fn into_consumer(&self) -> Self::Output;
+}
+
+impl<A> IntoConsumer for Dynamic<A>
+where
+    A: CommonBound,
+{
+    type Output = Consumer<A>;
+    fn into_consumer(&self) -> Self::Output {
+        Consumer::new(self.clone())
+    }
+}
+
+impl<A, B> IntoConsumer for (Dynamic<A>, Dynamic<B>)
+where
+    A: CommonBound,
+    B: CommonBound,
+{
+    type Output = Consumer2<A, B>;
+    fn into_consumer(&self) -> Self::Output {
+        Consumer2::new(self.clone())
+    }
+}
+
+impl<A, B, C> IntoConsumer for (Dynamic<A>, Dynamic<B>, Dynamic<C>)
+where
+    A: CommonBound,
+    B: CommonBound,
+    C: CommonBound,
+{
+    type Output = Consumer3<A, B, C>;
+    fn into_consumer(&self) -> Self::Output {
+        Consumer3::new(self.clone())
     }
 }
 
@@ -493,7 +591,8 @@ mod tests {
 
         let consumer_a = Consumer::new(dynamic_a.clone());
         let consumer_b = Consumer::new(dynamic_b.clone());
-        let consumer_ab = Consumer2::new((dynamic_a.clone(), dynamic_b.clone()));
+        //let consumer_ab = Consumer2::new((dynamic_a.clone(), dynamic_b.clone()));
+        let consumer_ab = (dynamic_a.clone(), dynamic_b.clone()).into_consumer();
 
         let poll = || {
             let mut res_a = None;
@@ -562,5 +661,36 @@ mod tests {
         assert_eq!(res_a, None);
         assert_eq!(res_b, None);
         assert_eq!(res_ab, None);
+    }
+
+    #[test]
+    fn consumer_3() {
+        let dynamic_a = Dynamic::new(10);
+        let dynamic_b = Dynamic::new(20);
+        let dynamic_c = Dynamic::new(30);
+
+        let consumer = (dynamic_a.clone(), dynamic_b.clone(), dynamic_c.clone()).into_consumer();
+
+        let poll = || {
+            let mut res = None;
+            consumer.on_change(|(a, b, c)| res = Some((*a, *b, *c)));
+            res
+        };
+
+        // Initial poll
+        let res = poll();
+        assert_eq!(res, Some((10, 20, 30)));
+
+        dynamic_a.update(|a| a + 1);
+        let res = poll();
+        assert_eq!(res, Some((11, 20, 30)));
+
+        dynamic_b.update(|b| b + 2);
+        let res = poll();
+        assert_eq!(res, Some((11, 22, 30)));
+
+        dynamic_c.update(|c| c + 3);
+        let res = poll();
+        assert_eq!(res, Some((11, 22, 33)));
     }
 }

@@ -610,6 +610,11 @@ mod tests {
         assert_eq!(res_b, Some(20));
         assert_eq!(res_ab, Some((10, 20)));
 
+        let (res_a, res_b, res_ab) = poll();
+        assert_eq!(res_a, None);
+        assert_eq!(res_b, None);
+        assert_eq!(res_ab, None);
+
         // Update a
         dynamic_a.update(|a| a + 1);
         let (res_a, res_b, res_ab) = poll();
@@ -680,6 +685,9 @@ mod tests {
         // Initial poll
         let res = poll();
         assert_eq!(res, Some((10, 20, 30)));
+
+        let res = poll();
+        assert_eq!(res, None);
 
         dynamic_a.update(|a| a + 1);
         let res = poll();

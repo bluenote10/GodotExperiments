@@ -45,10 +45,10 @@ where
         if has_changed {
             self.value.replace(y);
             self.value_id.set(self.value_id.get() + 1);
-            println!(
-                "Set value to {:?}, value count: {:?}",
-                self.value, self.value_id
-            );
+            // println!(
+            //     "Set value to {:?}, value count: {:?}",
+            //     self.value, self.value_id
+            // );
         }
     }
 
@@ -62,10 +62,10 @@ where
         if has_changed {
             self.value.replace(y);
             self.value_id.set(self.value_id.get() + 1);
-            println!(
-                "Set value to {:?}, value count: {:?}",
-                self.value, self.value_id
-            );
+            // println!(
+            //     "Set value to {:?}, value count: {:?}",
+            //     self.value, self.value_id
+            // );
         }
     }
 
@@ -76,10 +76,10 @@ where
         };
         if has_changed {
             self.value_id.set(self.value_id.get() + 1);
-            println!(
-                "Set value to {:?}, value count: {:?}",
-                self.value, self.value_id
-            );
+            // println!(
+            //     "Set value to {:?}, value count: {:?}",
+            //     self.value, self.value_id
+            // );
         }
     }
 

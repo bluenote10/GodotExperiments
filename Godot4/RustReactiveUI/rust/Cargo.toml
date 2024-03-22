@@ -9,3 +9,11 @@ crate-type = ["cdylib"]
 
 [dependencies]
 godot = { git = "https://github.com/godot-rust/gdext", rev = "fe5b02ba6abec0ba2d8fff612368a9c896872810", default-features = false, features = ["formatted", "codegen-full"] }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+# Enabling benching requires to comment out the crate-type (not cdylib compatible)
+[[bench]]
+name = "my_benchmark"
+harness = false

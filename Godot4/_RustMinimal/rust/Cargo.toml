@@ -8,4 +8,4 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-godot = { git = "https://github.com/godot-rust/gdext", rev = "fe5b02ba6abec0ba2d8fff612368a9c896872810", default-features = false, features = ["formatted", "codegen-full"] }
+godot = { git = "https://github.com/godot-rust/gdext", rev = "a0d579900308b87358b646df43c9100b36cc5ba6", features = ["experimental-godot-api", "api-4-3"]}

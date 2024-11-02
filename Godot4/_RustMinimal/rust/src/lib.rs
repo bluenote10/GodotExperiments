@@ -1,5 +1,5 @@
-use godot::engine::control::LayoutPreset;
-use godot::engine::{Control, IControl, Label};
+use godot::classes::control::LayoutPreset;
+use godot::classes::{Control, IControl, Label};
 use godot::prelude::*;
 
 struct ExtensionImpl;
@@ -22,7 +22,7 @@ impl IControl for TreeRoot {
         let mut label = Label::new_alloc();
         label.set_text("Hello World".into());
 
-        base.to_gd().add_child(label.upcast());
+        base.to_gd().add_child(label);
 
         Self { _base: base }
     }

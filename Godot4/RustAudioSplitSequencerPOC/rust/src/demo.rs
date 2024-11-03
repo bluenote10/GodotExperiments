@@ -1,37 +1,41 @@
-use godot::classes::{IControl, Os};
+use std::sync::Arc;
+
+use godot::classes::{AudioServer, IControl, Os};
 use godot::prelude::*;
 
-use super::custom_audio_stream::CustomAudioStream;
+use crate::custom_audio_stream::CustomAudioStream;
+use crate::sequencer::{Sequencer, SequencerInfo};
 
 #[derive(GodotClass)]
 #[class(base=Control)]
 pub struct Demo {
-    // #[base]
     audio_player: Gd<AudioStreamPlayer>,
+    sequencer_info: Arc<SequencerInfo>,
 }
 
 #[godot_api]
 impl IControl for Demo {
     fn init(base: Base<Self::Base>) -> Self {
-        // godot_print!("init");
-        // godot_print!(
-        //     "main thread id: {}, thread caller id: {}",
-        //     Os::singleton().get_main_thread_id(),
-        //     Os::singleton().get_thread_caller_id()
-        // );
-
-        // let buffer: HeapRb<WrappedAudioFrame> = HeapRb::new(RING_BUF_SIZE);
-        // let (producer, consumer) = buffer.split();
-
         println!("Demo::init");
+        println!(
+            "main thread id: {}, thread caller id: {}",
+            Os::singleton().get_main_thread_id(),
+            Os::singleton().get_thread_caller_id()
+        );
+
+        let sequencer = Sequencer::new(AudioServer::singleton().get_mix_rate());
+        let sequencer_info = sequencer.get_sequencer_info();
 
         let mut audio_player = AudioStreamPlayer::new_alloc();
-        audio_player.set_stream(Gd::<CustomAudioStream>::from_init_fn(|_| {
-            CustomAudioStream::new()
+        audio_player.set_stream(Gd::<CustomAudioStream>::from_init_fn(move |_| {
+            CustomAudioStream::new(sequencer)
         }));
         base.to_gd().add_child(audio_player.clone());
 
-        Self { audio_player }
+        Self {
+            audio_player,
+            sequencer_info,
+        }
     }
 
     fn ready(&mut self) {
@@ -42,6 +46,11 @@ impl IControl for Demo {
     }
 
     fn process(&mut self, _delta: f64) {
-        // godot_print!("[{:08}] process...", Os::singleton().get_thread_caller_id());
+        let sample_index = self.sequencer_info.sample_index();
+        println!(
+            "[{:08}] process sample index: {}",
+            Os::singleton().get_thread_caller_id(),
+            sample_index
+        );
     }
 }

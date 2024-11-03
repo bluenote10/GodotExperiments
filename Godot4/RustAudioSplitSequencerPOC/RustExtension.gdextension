@@ -3,4 +3,4 @@ entry_symbol = "gdext_rust_init"
 compatibility_minimum = 4.1
 
 [libraries]
-linux.64 = "res://rust/target/debug/libgdext_example.so"
+linux.64 = "res://rust/target/release/libgdext_example.so"

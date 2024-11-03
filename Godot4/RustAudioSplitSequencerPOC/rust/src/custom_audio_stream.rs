@@ -4,7 +4,7 @@ use godot::classes::native::AudioFrame;
 use godot::classes::{AudioStreamPlayback, IAudioStream, IAudioStreamPlayback, Os};
 use godot::prelude::*;
 
-type Sequencer = ();
+use super::sequencer::Sequencer;
 
 // ----------------------------------------------------------------------------
 // CustomAudioStream
@@ -19,8 +19,10 @@ pub struct CustomAudioStream {
 #[godot_api]
 impl IAudioStream for CustomAudioStream {
     fn instantiate_playback(&self) -> Option<Gd<AudioStreamPlayback>> {
-        println!("instantiate_playback");
-        godot_print!("[{:08}]", Os::singleton().get_thread_caller_id());
+        println!(
+            "[{:08}] instantiate_playback",
+            Os::singleton().get_thread_caller_id()
+        );
         // Since instantiate_playback doesn't allow for &mut self we need interior mutability here.
         let sequencer = self.sequencer.borrow_mut().take();
         if let Some(sequencer) = sequencer {
@@ -38,11 +40,10 @@ impl IAudioStream for CustomAudioStream {
 }
 
 impl CustomAudioStream {
-    pub fn new() -> Self {
+    pub fn new(sequencer: Sequencer) -> Self {
         println!("CustomAudioStream::new");
-        Self {
-            sequencer: RefCell::new(Some(())),
-        }
+        let sequencer = RefCell::new(Some(sequencer));
+        Self { sequencer }
     }
 }
 
@@ -54,6 +55,7 @@ impl CustomAudioStream {
 #[class(base=AudioStreamPlayback, no_init)]
 pub struct CustomAudioStreamPlayback {
     sequencer: Sequencer,
+    temp_buffers: [Vec<f32>; 2],
 }
 
 #[godot_api]
@@ -64,25 +66,28 @@ impl IAudioStreamPlayback for CustomAudioStreamPlayback {
         _rate_scale: f32,
         num_requested_frames: i32,
     ) -> i32 {
-        // println!("foo");
-        // let id = Os::singleton().get_thread_caller_id();
-        // println!("bar");
-        // godot_print!(
-        //     "[{:08}] requested: {num_requested_frames})",
-        //     Os::singleton().get_thread_caller_id()
-        // );
-        // println!("baz");
-        //
-        // let mut i = 0;
-        // while i < num_requested_frames {
-        //     // Buffer underrun
-        //     *buffer.offset(i as isize) = AudioFrame {
-        //         left: 0.0,
-        //         right: 0.0,
-        //     };
-        //     i += 1;
-        // }
-        // num_requested_frames
+        for buffer in self.temp_buffers.iter_mut() {
+            buffer.resize(num_requested_frames as usize, 0.0);
+        }
+
+        let mut temp_buffers = self
+            .temp_buffers
+            .iter_mut()
+            .map(|buffer| buffer.as_mut_slice())
+            .collect::<Vec<&mut [f32]>>();
+
+        self.sequencer
+            .render_audio(num_requested_frames as usize, temp_buffers.as_mut_slice());
+
+        for i in 0..num_requested_frames {
+            unsafe {
+                *buffer.offset(i as isize) = AudioFrame {
+                    left: temp_buffers[0][i as usize],
+                    right: temp_buffers[1][i as usize],
+                };
+            }
+        }
+
         num_requested_frames
     }
 
@@ -95,31 +100,10 @@ impl IAudioStreamPlayback for CustomAudioStreamPlayback {
 
 impl CustomAudioStreamPlayback {
     fn new(sequencer: Sequencer) -> Self {
-        Self { sequencer }
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct WrappedAudioFrame {
-    pub left: f32,
-    pub right: f32,
-}
-
-impl From<WrappedAudioFrame> for AudioFrame {
-    fn from(value: WrappedAudioFrame) -> Self {
-        AudioFrame {
-            left: value.left,
-            right: value.right,
+        let temp_buffers = [const { Vec::<f32>::new() }; 2];
+        Self {
+            sequencer,
+            temp_buffers,
         }
-    }
-}
-
-impl WrappedAudioFrame {
-    pub fn new(left: f32, right: f32) -> Self {
-        Self { left, right }
-    }
-
-    pub fn to_audio_frame(&self) -> AudioFrame {
-        (*self).into()
     }
 }

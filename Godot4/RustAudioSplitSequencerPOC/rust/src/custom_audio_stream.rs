@@ -19,6 +19,8 @@ pub struct CustomAudioStream {
 #[godot_api]
 impl IAudioStream for CustomAudioStream {
     fn instantiate_playback(&self) -> Option<Gd<AudioStreamPlayback>> {
+        println!("instantiate_playback");
+        godot_print!("[{:08}]", Os::singleton().get_thread_caller_id());
         // Since instantiate_playback doesn't allow for &mut self we need interior mutability here.
         let sequencer = self.sequencer.borrow_mut().take();
         if let Some(sequencer) = sequencer {
@@ -37,6 +39,7 @@ impl IAudioStream for CustomAudioStream {
 
 impl CustomAudioStream {
     pub fn new() -> Self {
+        println!("CustomAudioStream::new");
         Self {
             sequencer: RefCell::new(Some(())),
         }

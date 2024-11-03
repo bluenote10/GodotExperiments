@@ -6,28 +6,29 @@ use super::custom_audio_stream::CustomAudioStream;
 #[derive(GodotClass)]
 #[class(base=Control)]
 pub struct Demo {
-    #[base]
+    // #[base]
     audio_player: Gd<AudioStreamPlayer>,
 }
 
 #[godot_api]
 impl IControl for Demo {
     fn init(base: Base<Self::Base>) -> Self {
-        godot_print!("init");
-        godot_print!(
-            "main thread id: {}, thread caller id: {}",
-            Os::singleton().get_main_thread_id(),
-            Os::singleton().get_thread_caller_id()
-        );
+        // godot_print!("init");
+        // godot_print!(
+        //     "main thread id: {}, thread caller id: {}",
+        //     Os::singleton().get_main_thread_id(),
+        //     Os::singleton().get_thread_caller_id()
+        // );
 
         // let buffer: HeapRb<WrappedAudioFrame> = HeapRb::new(RING_BUF_SIZE);
         // let (producer, consumer) = buffer.split();
 
-        let custom_audio_stream =
-            Gd::<CustomAudioStream>::from_init_fn(|_| CustomAudioStream::new());
+        println!("Demo::init");
 
         let mut audio_player = AudioStreamPlayer::new_alloc();
-        audio_player.set_stream(custom_audio_stream);
+        audio_player.set_stream(Gd::<CustomAudioStream>::from_init_fn(|_| {
+            CustomAudioStream::new()
+        }));
         base.to_gd().add_child(audio_player.clone());
 
         Self { audio_player }
@@ -41,6 +42,6 @@ impl IControl for Demo {
     }
 
     fn process(&mut self, _delta: f64) {
-        godot_print!("[{:08}] process...", Os::singleton().get_thread_caller_id());
+        // godot_print!("[{:08}] process...", Os::singleton().get_thread_caller_id());
     }
 }

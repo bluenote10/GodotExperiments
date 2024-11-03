@@ -23,6 +23,9 @@ impl IControl for Demo {
             Os::singleton().get_thread_caller_id()
         );
 
+        // Note that this pattern is conceptually similar to the "split" pattern
+        // of the ringbuf approach: We have one thing which we send to the audio
+        // thread, and one thing we keep locally to communicate with it.
         let sequencer = Sequencer::new(AudioServer::singleton().get_mix_rate());
         let sequencer_info = sequencer.get_sequencer_info();
 
@@ -52,5 +55,9 @@ impl IControl for Demo {
             Os::singleton().get_thread_caller_id(),
             sample_index
         );
+
+        if sample_index > 44100 * 5 {
+            self.sequencer_info.set_frequency(440.0);
+        }
     }
 }

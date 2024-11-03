@@ -1,5 +1,5 @@
 use godot::classes::native::AudioFrame;
-use godot::classes::{AudioServer, AudioStreamPlayback, IAudioStream, IAudioStreamPlayback};
+use godot::classes::{AudioServer, AudioStreamPlayback, IAudioStream, IAudioStreamPlayback, Os};
 use godot::prelude::*;
 
 #[derive(GodotClass)]
@@ -11,7 +11,10 @@ pub struct Demo {
 #[godot_api]
 impl INode for Demo {
     fn init(base: Base<Self::Base>) -> Self {
-        println!("Demo::init");
+        println!(
+            "Demo::init is running on thread {}",
+            Os::singleton().get_thread_caller_id()
+        );
 
         let mut audio_player = AudioStreamPlayer::new_alloc();
         audio_player.set_stream(Gd::<CustomAudioStream>::from_init_fn(|_| {
@@ -23,6 +26,10 @@ impl INode for Demo {
     }
 
     fn ready(&mut self) {
+        println!(
+            "Demo::ready is running on thread {}",
+            Os::singleton().get_thread_caller_id()
+        );
         self.audio_player.play();
     }
 }
@@ -36,7 +43,10 @@ pub struct CustomAudioStream {}
 #[godot_api]
 impl IAudioStream for CustomAudioStream {
     fn instantiate_playback(&self) -> Option<Gd<AudioStreamPlayback>> {
-        println!("instantiate_playback");
+        println!(
+            "CustomAudioStream::instantiate_playback is running on thread {}",
+            Os::singleton().get_thread_caller_id()
+        );
         Some(
             Gd::<CustomAudioStreamPlayback>::from_init_fn(|_base| {
                 CustomAudioStreamPlayback::new(Sequencer {
@@ -51,6 +61,10 @@ impl IAudioStream for CustomAudioStream {
 
 impl CustomAudioStream {
     pub fn new() -> Self {
+        println!(
+            "CustomAudioStream::new is running on thread {}",
+            Os::singleton().get_thread_caller_id()
+        );
         Self {}
     }
 }
@@ -71,6 +85,10 @@ impl IAudioStreamPlayback for CustomAudioStreamPlayback {
         _rate_scale: f32,
         num_requested_frames: i32,
     ) -> i32 {
+        println!(
+            "CustomAudioStreamPlayback::mix is running on thread {}",
+            Os::singleton().get_thread_caller_id()
+        );
         self.sequencer.render_audio(num_requested_frames, buffer);
         num_requested_frames
     }
@@ -84,6 +102,10 @@ impl IAudioStreamPlayback for CustomAudioStreamPlayback {
 
 impl CustomAudioStreamPlayback {
     fn new(sequencer: Sequencer) -> Self {
+        println!(
+            "CustomAudioStreamPlayback::new is running on thread {}",
+            Os::singleton().get_thread_caller_id()
+        );
         Self { sequencer }
     }
 }

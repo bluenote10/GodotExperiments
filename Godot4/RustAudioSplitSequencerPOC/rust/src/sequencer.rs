@@ -1,4 +1,5 @@
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use godot::classes::Os;
@@ -12,6 +13,30 @@ pub enum Command {
 
 pub type CommandProducer = <HeapRb<Command> as Split>::Prod;
 pub type CommandConsumer = <HeapRb<Command> as Split>::Cons;
+
+// https://github.com/rust-lang/rust/issues/68614
+// https://github.com/rust-lang/rust/issues/72353#issuecomment-1093729062
+pub struct AtomicF64 {
+    storage: AtomicU64,
+}
+impl AtomicF64 {
+    pub fn new(value: f64) -> Self {
+        let as_u64 = value.to_bits();
+        Self {
+            storage: AtomicU64::new(as_u64),
+        }
+    }
+    pub fn store(&self, value: f64, ordering: Ordering) {
+        let as_u64 = value.to_bits();
+        self.storage.store(as_u64, ordering)
+    }
+    pub fn load(&self, ordering: Ordering) -> f64 {
+        let as_u64 = self.storage.load(ordering);
+        f64::from_bits(as_u64)
+    }
+}
+
+type ParamDatabase = HashMap<i32, AtomicF64>;
 
 /// This class serves as the "send/sync communication interface" that
 /// is held on the main thread.
@@ -33,7 +58,16 @@ pub struct SequencerInfo {
     // on the producer side (not the audio thread), but want to avoid any kind
     // of lock/mutex on the consumer side (audio thread).
     // commands: HeapRb<Command>,
+
+    // The following would be an example of a lock free / sync parameter database.
+    // Its usage would require that all parameters get populated upfront, because
+    // adding/removing keys from the hashmap is not possible with a shared `&` reference.
+    // But it would allow to read and modify the values stored in the hashmap across
+    // threads, if the value types are atomic based.
+    param_database: ParamDatabase,
 }
+
+static_assertions::assert_impl_all!(SequencerInfo: Send, Sync);
 
 impl SequencerInfo {
     pub fn sample_index(&self) -> usize {
@@ -51,6 +85,20 @@ impl SequencerInfo {
         command_producer
             .try_push(Command::SetFrequency(freq))
             .unwrap();
+    }
+
+    pub fn set_param(&self, idx: i32, value: f64) {
+        if let Some(entry) = self.param_database.get(&idx) {
+            entry.store(value, Ordering::Release);
+        }
+    }
+
+    pub fn get_param(&self, idx: i32) -> Option<f64> {
+        if let Some(entry) = self.param_database.get(&idx) {
+            Some(entry.load(Ordering::Acquire))
+        } else {
+            None
+        }
     }
 }
 
@@ -71,6 +119,12 @@ impl Sequencer {
         let shared = Arc::new(SequencerInfo {
             sample_index: AtomicUsize::new(0),
             command_producer: Mutex::new(command_producer),
+            // Emulate upfront population of parameter database.
+            param_database: HashMap::from([
+                (0, AtomicF64::new(1.0)),
+                (1, AtomicF64::new(2.0)),
+                (2, AtomicF64::new(3.0)),
+            ]),
         });
 
         Self {
@@ -113,9 +167,12 @@ impl Sequencer {
             .store(self.sample_index, Ordering::Release);
 
         println!(
-            "[{:08}] render_audio: {}",
+            "[{:08}] render_audio: {} (param 0: {}, param 1: {}, param 2: {})",
             Os::singleton().get_thread_caller_id(),
-            self.sample_index
+            self.sample_index,
+            self.get_sequencer_info().get_param(0).unwrap(),
+            self.get_sequencer_info().get_param(1).unwrap(),
+            self.get_sequencer_info().get_param(2).unwrap(),
         );
     }
 }

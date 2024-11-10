@@ -3,7 +3,7 @@ use std::sync::Arc;
 use godot::classes::{AudioServer, IControl, Os};
 use godot::prelude::*;
 
-use super::custom_audio_stream::CustomAudioStream;
+use super::custom_audio_stream::CustomAudioStreamV1;
 use super::sequencer::{Sequencer, SequencerInfo};
 
 #[derive(GodotClass)]
@@ -37,8 +37,8 @@ impl IControl for DemoV1 {
         let sequencer_info = sequencer.get_sequencer_info();
 
         let mut audio_player = AudioStreamPlayer::new_alloc();
-        audio_player.set_stream(Gd::<CustomAudioStream>::from_init_fn(move |_| {
-            CustomAudioStream::new(sequencer)
+        audio_player.set_stream(Gd::<CustomAudioStreamV1>::from_init_fn(move |_| {
+            CustomAudioStreamV1::new(sequencer)
         }));
         base.to_gd().add_child(audio_player.clone());
 

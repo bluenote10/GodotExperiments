@@ -12,12 +12,12 @@ use super::sequencer::Sequencer;
 
 #[derive(GodotClass)]
 #[class(base=AudioStream, no_init)]
-pub struct CustomAudioStream {
+pub struct CustomAudioStreamV1 {
     sequencer: RefCell<Option<Sequencer>>,
 }
 
 #[godot_api]
-impl IAudioStream for CustomAudioStream {
+impl IAudioStream for CustomAudioStreamV1 {
     fn instantiate_playback(&self) -> Option<Gd<AudioStreamPlayback>> {
         println!(
             "[{:08}] instantiate_playback",
@@ -27,8 +27,8 @@ impl IAudioStream for CustomAudioStream {
         let sequencer = self.sequencer.borrow_mut().take();
         if let Some(sequencer) = sequencer {
             Some(
-                Gd::<CustomAudioStreamPlayback>::from_init_fn(|_base| {
-                    CustomAudioStreamPlayback::new(sequencer)
+                Gd::<CustomAudioStreamPlaybackV1>::from_init_fn(|_base| {
+                    CustomAudioStreamPlaybackV1::new(sequencer)
                 })
                 .upcast(),
             )
@@ -39,7 +39,7 @@ impl IAudioStream for CustomAudioStream {
     }
 }
 
-impl CustomAudioStream {
+impl CustomAudioStreamV1 {
     pub fn new(sequencer: Sequencer) -> Self {
         println!("CustomAudioStream::new");
         let sequencer = RefCell::new(Some(sequencer));
@@ -53,13 +53,13 @@ impl CustomAudioStream {
 
 #[derive(GodotClass)]
 #[class(base=AudioStreamPlayback, no_init)]
-pub struct CustomAudioStreamPlayback {
+pub struct CustomAudioStreamPlaybackV1 {
     sequencer: Sequencer,
     temp_buffers: [Vec<f32>; 2],
 }
 
 #[godot_api]
-impl IAudioStreamPlayback for CustomAudioStreamPlayback {
+impl IAudioStreamPlayback for CustomAudioStreamPlaybackV1 {
     unsafe fn mix(
         &mut self,
         buffer: *mut AudioFrame,
@@ -98,7 +98,7 @@ impl IAudioStreamPlayback for CustomAudioStreamPlayback {
     }
 }
 
-impl CustomAudioStreamPlayback {
+impl CustomAudioStreamPlaybackV1 {
     fn new(sequencer: Sequencer) -> Self {
         let temp_buffers = [const { Vec::<f32>::new() }; 2];
         Self {

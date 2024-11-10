@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::rc::Rc;
-use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use godot::classes::Os;
 use ringbuf::traits::{Consumer, Producer, Split};
 use ringbuf::HeapRb;
+
+use crate::atomic_float::AtomicF64;
 
 #[derive(Debug)]
 pub enum Command {
@@ -16,28 +18,6 @@ pub enum Command {
 pub type CommandProducer = <HeapRb<Command> as Split>::Prod;
 pub type CommandConsumer = <HeapRb<Command> as Split>::Cons;
 
-// https://github.com/rust-lang/rust/issues/68614
-// https://github.com/rust-lang/rust/issues/72353#issuecomment-1093729062
-pub struct AtomicF64 {
-    storage: AtomicU64,
-}
-impl AtomicF64 {
-    pub fn new(value: f64) -> Self {
-        let as_u64 = value.to_bits();
-        Self {
-            storage: AtomicU64::new(as_u64),
-        }
-    }
-    pub fn store(&self, value: f64, ordering: Ordering) {
-        let as_u64 = value.to_bits();
-        self.storage.store(as_u64, ordering)
-    }
-    pub fn load(&self, ordering: Ordering) -> f64 {
-        let as_u64 = self.storage.load(ordering);
-        f64::from_bits(as_u64)
-    }
-}
-
 type ParamDatabase = HashMap<i32, AtomicF64>;
 
 /// This class serves as the "send/sync communication interface" that
@@ -46,7 +26,7 @@ type ParamDatabase = HashMap<i32, AtomicF64>;
 /// Why having a separate struct and not using an Arc<Sequencer> directly?
 /// In general the Sequencer may not be send/sync, and splitting out the
 /// send/sync communication allows for more flexibility in the Sequencer
-/// implementation itself
+/// implementation itself.
 pub struct SequencerInfo {
     sample_index: AtomicUsize,
     // Note that we need a Mutex, because the user only holds an `Arc`, and

@@ -3,18 +3,18 @@ use std::sync::Arc;
 use godot::classes::{AudioServer, IControl, Os};
 use godot::prelude::*;
 
-use crate::custom_audio_stream::CustomAudioStream;
-use crate::sequencer::{Sequencer, SequencerInfo};
+use super::custom_audio_stream::CustomAudioStream;
+use super::sequencer::{Sequencer, SequencerInfo};
 
 #[derive(GodotClass)]
 #[class(base=Control)]
-pub struct Demo {
+pub struct DemoV1 {
     audio_player: Gd<AudioStreamPlayer>,
     sequencer_info: Arc<SequencerInfo>,
 }
 
 #[godot_api]
-impl IControl for Demo {
+impl IControl for DemoV1 {
     fn init(base: Base<Self::Base>) -> Self {
         println!("Demo::init");
         println!(
@@ -26,6 +26,13 @@ impl IControl for Demo {
         // Note that this pattern is conceptually similar to the "split" pattern
         // of the ringbuf approach: We have one thing which we send to the audio
         // thread, and one thing we keep locally to communicate with it.
+        // EDIT: The issue with this pattern is that the Sequencer would have to be
+        // Sync for that to be valid. Note that this is actually not verified by the
+        // type system due to limitations in the Godot bindings. Currently it is possible
+        // to pass a non-send Sequence instance to `CustomAudioStream`, which in turn
+        // passes it to `CustomAudioStreamPlayback` where it gets accessed by Godot from
+        // a different thread (the audio thread). Therefore, this pattern is unsound
+        // for a non-send Sequencer.
         let sequencer = Sequencer::new(AudioServer::singleton().get_mix_rate());
         let sequencer_info = sequencer.get_sequencer_info();
 

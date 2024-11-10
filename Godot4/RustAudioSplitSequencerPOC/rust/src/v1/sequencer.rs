@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::marker::PhantomData;
+use std::rc::Rc;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
@@ -67,7 +69,8 @@ pub struct SequencerInfo {
     param_database: ParamDatabase,
 }
 
-static_assertions::assert_impl_all!(SequencerInfo: Send, Sync);
+static_assertions::assert_impl_all!(SequencerInfo: Send);
+static_assertions::assert_impl_all!(SequencerInfo: Sync);
 
 impl SequencerInfo {
     pub fn sample_index(&self) -> usize {
@@ -109,7 +112,12 @@ pub struct Sequencer {
     sample_index: usize,
     shared: Arc<SequencerInfo>,
     command_consumer: CommandConsumer,
+    // Dummy phantom data to simulate a non-send / non-sync Sequencer.
+    phantom: PhantomData<Rc<i32>>,
 }
+
+static_assertions::assert_not_impl_all!(Sequencer: Send);
+static_assertions::assert_not_impl_all!(Sequencer: Sync);
 
 impl Sequencer {
     pub fn new(sample_rate: f32) -> Self {
@@ -133,6 +141,7 @@ impl Sequencer {
             sample_index: 0,
             shared,
             command_consumer,
+            phantom: PhantomData,
         }
     }
 

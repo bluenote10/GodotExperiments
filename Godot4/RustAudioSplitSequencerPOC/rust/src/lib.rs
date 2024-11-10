@@ -2,9 +2,7 @@ use godot::prelude::*;
 
 struct ExtensionImpl;
 
-mod custom_audio_stream;
-mod demo;
-mod sequencer;
+mod v1;
 
 // mod debug;
 

@@ -3,9 +3,15 @@ use std::rc::Rc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
+use arc_swap::ArcSwap;
 use godot::classes::Os;
 use ringbuf::traits::{Consumer, Producer, Split};
 use ringbuf::HeapRb;
+
+pub struct WithTwoFields {
+    foo: f32,
+    bar: f32,
+}
 
 // ----------------------------------------------------------------------------
 // Shared atomics
@@ -13,15 +19,35 @@ use ringbuf::HeapRb;
 
 pub struct Atomics {
     sample_index: AtomicUsize,
+    // Note that in general it is also possible to turn structs that are not
+    // themselves atomic into lock-free atomics by "double atomic wrapping".
+    // The idea is basically to use an atomic usize for the pointer, which
+    // in turn points to an Arc (which is slightly confusing because its "A"
+    // also means "atomic", but refers to its internal reference counting).
+    // Basically the outer atomic allows to swap out the inner Arc itself,
+    // allowing for atomically communicating larger structs between threads.
+    // There are a few libraries like arc-swap, arc-atomic, and aarc that
+    // can help with that:
+    // - https://docs.rs/arc-swap/latest/arc_swap/
+    // - https://docs.rs/arc-atomic/latest/arc_atomic/
+    // - https://www.reddit.com/r/rust/comments/1bilk82/announcing_aarc_010_atomic_variants_of_arc_and/
+    with_two_fields: ArcSwap<WithTwoFields>,
 }
 
 impl Atomics {
     pub fn sample_index(&self) -> usize {
         self.sample_index.load(Ordering::Acquire)
     }
-
     pub fn set_sample_index(&self, value: usize) {
         self.sample_index.store(value, Ordering::Release);
+    }
+
+    pub fn with_two_fields(&self) -> Arc<WithTwoFields> {
+        self.with_two_fields.load_full()
+    }
+    pub fn set_with_two_fields(&self, foo: f32, bar: f32) {
+        self.with_two_fields
+            .store(Arc::new(WithTwoFields { foo, bar }));
     }
 }
 
@@ -79,6 +105,7 @@ impl SequencerControlOutput {
 pub fn create_sequencer_control() -> (SequencerControlInput, SequencerControlOutput) {
     let atomics = Arc::new(Atomics {
         sample_index: AtomicUsize::new(0),
+        with_two_fields: ArcSwap::new(Arc::new(WithTwoFields { foo: 1.0, bar: 2.0 })),
     });
 
     let commands = HeapRb::<Command>::new(4);
@@ -145,10 +172,14 @@ impl Sequencer {
         // Sync state into `shared`
         self.atomics.set_sample_index(self.sample_index);
 
+        let with_two_fields = self.atomics.with_two_fields();
+
         println!(
-            "[{:08}] render_audio: {}",
+            "[{:08}] render_audio: {} (foo: {}, bar: {})",
             Os::singleton().get_thread_caller_id(),
             self.sample_index,
+            with_two_fields.foo,
+            with_two_fields.bar,
         );
     }
 }

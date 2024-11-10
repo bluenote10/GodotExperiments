@@ -56,10 +56,7 @@ impl IControl for DemoV2 {
 
         if sample_index > 44100 * 5 {
             self.control_in.set_frequency(440.0);
-            // let old_value = self.sequencer_info.get_param(0).unwrap();
-            // if old_value < 100.0 {
-            //     self.sequencer_info.set_param(0, old_value * 2.0);
-            // }
+            self.control_in.atomics.set_with_two_fields(10.0, 20.0);
         }
     }
 }

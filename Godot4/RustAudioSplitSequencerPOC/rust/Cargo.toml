@@ -8,6 +8,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
+arc-swap = "1.7.1"
 godot = { git = "https://github.com/godot-rust/gdext", rev = "a0d579900308b87358b646df43c9100b36cc5ba6", features = ["experimental-godot-api", "api-4-3"]}
 ringbuf = "0.4.7"
 static_assertions = "1.1.0"

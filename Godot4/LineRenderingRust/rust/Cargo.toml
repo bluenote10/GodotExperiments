@@ -11,4 +11,4 @@ crate-type = ["cdylib"]
 godot = { git = "https://github.com/godot-rust/gdext", rev = "780a62a5e82098571215e0b8cebc51cf50e47944", default-features = false, features = ["formatted", "codegen-full"] }
 # godot = { path = "/home/fabian/git/_ext/gdextension/godot", features = ["formatted", "codegen-full", "trace"] }
 # godot = { path = "/home/fabian/git/_ext/gdextension/godot", features = ["formatted", "codegen-full"] }
-rand = "0.8"
+rand = "0.9"
